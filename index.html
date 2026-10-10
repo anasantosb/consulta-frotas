@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Frotto - Sistema de Consulta de Documentos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main id="login-screen" class="login">
+    <div class="login__brand">
+      <div class="login__logo"><i data-icon="truck"></i></div>
+      <h1>Frotto</h1>
+      <p>Sistema de Consulta de Documentos</p>
+    </div>
+
+    <form id="login-form" class="login__card" novalidate>
+      <h2>Acesso ao Sistema</h2>
+
+      <label for="matricula">Matrícula</label>
+      <div class="input-icon">
+        <i data-icon="user"></i>
+        <input id="matricula" type="text" placeholder="Digite sua matrícula" autocomplete="username">
+      </div>
+
+      <label for="senha">Senha</label>
+      <div class="input-icon">
+        <i data-icon="lock"></i>
+        <input id="senha" type="password" placeholder="Digite sua senha" autocomplete="current-password">
+      </div>
+
+      <p id="login-error" class="form-error" role="alert" hidden></p>
+
+      <button type="submit" class="btn btn--primary btn--block">Entrar</button>
+    </form>
+
+    <p class="login__footer">© 2025 Frotto - Todos os direitos reservados</p>
+  </main>
+
+  <div id="app" class="app" hidden>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar__head">
+        <strong>Frotto</strong>
+        <span id="user-role">Administrador</span>
+      </div>
+
+      <nav id="nav" class="sidebar__nav" aria-label="Menu principal">
+        <button type="button" data-view="inicio" data-title="Início" data-roles="ADM GES COL"><i data-icon="house"></i>Início</button>
+        <button type="button" data-view="documentos" data-title="Documentos" data-roles="ADM GES COL"><i data-icon="file-text"></i>Documentos</button>
+        <button type="button" data-view="enviar" data-title="Enviar Documentos" data-roles="ADM GES"><i data-icon="upload"></i>Enviar Documentos</button>
+        <button type="button" data-view="alertas" data-title="Alertas" data-roles="ADM"><i data-icon="bell"></i>Alertas</button>
+        <button type="button" data-view="relatorios" data-title="Relatórios" data-roles="ADM GES"><i data-icon="chart-column"></i>Relatórios</button>
+        <button type="button" data-view="cadastrar" data-title="Cadastrar Veículo" data-roles="ADM"><i data-icon="car"></i>Cadastrar Veículo</button>
+        <button type="button" data-view="usuarios" data-title="Usuários" data-roles="ADM"><i data-icon="users"></i>Usuários</button>
+      </nav>
+
+      <div class="sidebar__foot">
+        <button type="button" id="logout"><i data-icon="log-out"></i>Sair</button>
+      </div>
+    </aside>
+    <div id="backdrop" class="backdrop" hidden></div>
+
+    <div class="main">
+      <header class="topbar">
+        <button type="button" id="menu-toggle" class="topbar__menu" aria-label="Abrir menu"><i data-icon="menu"></i></button>
+        <h2 id="page-title">Início</h2>
+        <div class="topbar__sys">
+          <strong>Frotto</strong>
+        </div>
+      </header>
+
+      <div class="content">
+        <section id="view-inicio" class="view" hidden>
+          <div class="stats">
+            <div class="stat">
+              <div><span class="stat__label">Total de Veículos</span><strong id="st-total" class="stat__value">6</strong></div>
+              <i data-icon="car" class="stat__icon c-indigo"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Regulares</span><strong id="st-reg" class="stat__value c-green">3</strong></div>
+              <i data-icon="circle-check" class="stat__icon c-green"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Atenção</span><strong id="st-aten" class="stat__value c-orange">2</strong></div>
+              <i data-icon="clock" class="stat__icon c-orange"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Vencidos</span><strong id="st-venc" class="stat__value c-red">1</strong></div>
+              <i data-icon="triangle-alert" class="stat__icon c-red"></i>
+            </div>
+          </div>
+
+          <div class="panel filters">
+            <div class="search">
+              <i data-icon="search"></i>
+              <input id="busca" type="text" placeholder="Buscar por placa, modelo ou chassi...">
+            </div>
+            <div class="select">
+              <select id="filtro-status" aria-label="Filtrar por status">
+                <option value="todos">Todos os Status</option>
+                <option value="regular">Regular</option>
+                <option value="atencao">Atenção</option>
+                <option value="vencido">Vencido</option>
+              </select>
+              <i data-icon="chevron-down"></i>
+            </div>
+          </div>
+
+          <div id="vehicle-grid" class="vgrid"></div>
+        </section>
+
+        <section id="view-documentos" class="view" hidden>
+          <!-- Lista de veículos (entrada pelo menu) -->
+          <div id="docs-list">
+            <div id="doc-vehicle-grid" class="vgrid"></div>
+          </div>
+
+          <!-- Detalhe do veículo -->
+          <div id="docs-detail" hidden>
+            <div class="panel docs-head">
+              <button type="button" id="docs-back" class="link-back"><i data-icon="arrow-left"></i>Voltar para Lista</button>
+              <div class="docs-head__row">
+                <div>
+                  <h3 id="dd-placa">DEF-5678</h3>
+                  <p id="dd-modelo">Mercedes-Benz Actros • Cavalo Mecânico</p>
+                </div>
+                <div class="docs-head__total">
+                  <span>Total de Documentos</span>
+                  <strong id="dd-total">3</strong>
+                </div>
+              </div>
+            </div>
+            <div id="doc-items" class="doc-items"></div>
+          </div>
+        </section>
+
+        <section id="view-enviar" class="view" hidden>
+          <div class="narrow">
+            <form id="upload-form" class="panel form-panel" novalidate>
+              <h3 class="form-panel__title">Enviar Novo Documento</h3>
+
+              <div class="field">
+                <label for="up-veiculo">Veículo *</label>
+                <div class="select select--full">
+                  <select id="up-veiculo"></select>
+                  <i data-icon="chevron-down"></i>
+                </div>
+                <p class="field__error" data-error-for="up-veiculo"></p>
+              </div>
+
+              <div class="field">
+                <label for="up-tipo">Tipo de Documento *</label>
+                <div class="select select--full">
+                  <select id="up-tipo">
+                    <option value="">Selecione o tipo</option>
+                    <option value="CRLV">CRLV</option>
+                    <option value="Licenciamento">Licenciamento</option>
+                    <option value="Vistoria">Vistoria</option>
+                  </select>
+                  <i data-icon="chevron-down"></i>
+                </div>
+                <p class="field__error" data-error-for="up-tipo"></p>
+              </div>
+
+              <div class="field">
+                <label>Arquivo *</label>
+                <div id="dropzone" class="dropzone">
+                  <i data-icon="upload"></i>
+                  <p id="dz-text">Clique para selecionar ou arraste o arquivo</p>
+                  <small id="dz-hint">PDF, JPG ou PNG - Máximo 20MB</small>
+                  <button type="button" id="dz-btn" class="btn btn--primary btn--sm">Selecionar Arquivo</button>
+                  <input id="up-file" type="file" accept=".pdf,.jpg,.jpeg,.png" hidden>
+                </div>
+                <p class="field__error" data-error-for="up-file"></p>
+              </div>
+
+              <button type="submit" class="btn btn--primary btn--block">Enviar Documento</button>
+            </form>
+
+            <div class="infobox">
+              <h4><i data-icon="info"></i>Requisitos para Upload</h4>
+              <ul>
+                <li>Somente usuários com perfil Gestor de Frota ou Administrador podem enviar documentos</li>
+                <li>Formatos aceitos: PDF, JPG e PNG</li>
+                <li>Tamanho máximo: 20 MB por arquivo</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="view-alertas" class="view" hidden>
+          <div class="stats stats--3">
+            <div class="stat">
+              <div><span class="stat__label">Total de Alertas</span><strong id="al-total" class="stat__value">5</strong></div>
+              <i data-icon="bell" class="stat__icon c-indigo"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Documentos Vencidos</span><strong id="al-venc" class="stat__value c-red">2</strong></div>
+              <i data-icon="triangle-alert" class="stat__icon c-red"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Próximos ao Vencimento</span><strong id="al-prox" class="stat__value c-orange">3</strong></div>
+              <i data-icon="clock" class="stat__icon c-orange"></i>
+            </div>
+          </div>
+
+          <div class="panel alert-panel">
+            <h3 class="alert-panel__title c-red-title"><i data-icon="triangle-alert"></i>Documentos Vencidos <span id="al-venc-count" class="count count--red">2</span></h3>
+            <div id="alert-vencidos" class="alert-list"></div>
+          </div>
+
+          <div class="panel alert-panel">
+            <h3 class="alert-panel__title c-yellow-title"><i data-icon="clock"></i>Próximos ao Vencimento <span id="al-prox-count" class="count count--yellow">3</span></h3>
+            <div id="alert-proximos" class="alert-list"></div>
+          </div>
+        </section>
+
+        <section id="view-relatorios" class="view" hidden>
+          <div class="stats">
+            <div class="bigstat bigstat--indigo"><span>Total de Veículos</span><strong>48</strong></div>
+            <div class="bigstat bigstat--green"><span>Documentos Válidos</span><strong>132</strong></div>
+            <div class="bigstat bigstat--yellow"><span>Próximos Vencimento</span><strong>12</strong></div>
+            <div class="bigstat bigstat--red"><span>Documentos Vencidos</span><strong>8</strong></div>
+          </div>
+
+          <div class="panel report-panel">
+            <h3 class="report-panel__title"><i data-icon="file-text" class="c-indigo"></i>Gerar Relatório</h3>
+
+            <p class="report-label"><i data-icon="funnel"></i>Tipo de Relatório</p>
+            <div id="report-types" class="report-types">
+              <button type="button" class="option" data-type="geral">Relatório Geral da Frota</button>
+              <button type="button" class="option" data-type="vencidos">Documentos Vencidos e a Vencer</button>
+              <button type="button" class="option" data-type="veiculo">Relatório por Veículo</button>
+              <button type="button" class="option is-selected" data-type="historico">Histórico de Atualizações</button>
+            </div>
+
+            <p class="report-label"><i data-icon="calendar"></i>Período</p>
+            <div class="select select--full">
+              <select id="rep-periodo" aria-label="Período">
+                <option>Mês Atual</option>
+                <option>Mês Anterior</option>
+                <option>Últimos 3 Meses</option>
+                <option>Ano Atual</option>
+              </select>
+              <i data-icon="chevron-down"></i>
+            </div>
+
+            <p class="report-label report-label--plain">Formato de Exportação</p>
+            <div class="export-row">
+              <button type="button" id="exp-pdf" class="btn btn--red"><i data-icon="download"></i>Exportar PDF</button>
+              <button type="button" id="exp-csv" class="btn btn--green"><i data-icon="download"></i>Exportar CSV</button>
+            </div>
+          </div>
+
+          <div class="panel recent-panel">
+            <h3>Relatórios Gerados Recentemente</h3>
+            <div id="recent-list" class="recent-list"></div>
+          </div>
+        </section>
+
+        <section id="view-cadastrar" class="view" hidden>
+          <div class="narrow narrow--wide">
+            <div class="panel reg-head">
+              <span class="reg-head__icon"><i data-icon="car"></i></span>
+              <div>
+                <h3>Cadastrar Novo Veículo</h3>
+                <p>Preencha os dados do veículo para cadastro na frota</p>
+              </div>
+            </div>
+
+            <form id="vehicle-form" class="panel form-panel" novalidate>
+              <h4 class="form-section">Identificação do Veículo</h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="v-placa">Placa *</label>
+                  <input id="v-placa" class="input" type="text" placeholder="ABC-1234" maxlength="8">
+                  <p class="field__error" data-error-for="v-placa"></p>
+                </div>
+                <div class="field">
+                  <label for="v-renavam">Renavam *</label>
+                  <input id="v-renavam" class="input" type="text" placeholder="00000000000" inputmode="numeric" maxlength="11">
+                  <p class="field__error" data-error-for="v-renavam"></p>
+                </div>
+                <div class="field field--full">
+                  <label for="v-chassi">Chassi *</label>
+                  <input id="v-chassi" class="input" type="text" placeholder="9BW ZZZ377VR004251" maxlength="20">
+                  <small class="field__help">17 caracteres</small>
+                  <p class="field__error" data-error-for="v-chassi"></p>
+                </div>
+              </div>
+
+              <h4 class="form-section">Características do Veículo</h4>
+              <div class="form-grid">
+                <div class="field">
+                  <label for="v-marca">Marca *</label>
+                  <input id="v-marca" class="input" type="text" placeholder="Ex: Volvo, Mercedes, Scania">
+                  <p class="field__error" data-error-for="v-marca"></p>
+                </div>
+                <div class="field">
+                  <label for="v-modelo">Modelo *</label>
+                  <input id="v-modelo" class="input" type="text" placeholder="Ex: FH 540, Actros">
+                  <p class="field__error" data-error-for="v-modelo"></p>
+                </div>
+                <div class="field">
+                  <label for="v-tipo">Tipo de Veículo *</label>
+                  <div class="select select--full">
+                    <select id="v-tipo">
+                      <option value="">Selecione o tipo</option>
+                      <option value="Cavalo Mecânico">Cavalo Mecânico</option>
+                      <option value="Caminhão">Caminhão</option>
+                    </select>
+                    <i data-icon="chevron-down"></i>
+                  </div>
+                  <p class="field__error" data-error-for="v-tipo"></p>
+                </div>
+                <div class="field">
+                  <label for="v-ano">Ano de Fabricação *</label>
+                  <input id="v-ano" class="input" type="text" placeholder="2024" inputmode="numeric" maxlength="4">
+                  <p class="field__error" data-error-for="v-ano"></p>
+                </div>
+                <div class="field">
+                  <label for="v-cor">Cor</label>
+                  <input id="v-cor" class="input" type="text" placeholder="Ex: Branco, Azul">
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" id="v-clear" class="btn btn--outline">Limpar Formulário</button>
+                <button type="submit" class="btn btn--primary">Cadastrar Veículo</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section id="view-usuarios" class="view" hidden>
+          <div class="stats">
+            <div class="stat">
+              <div><span class="stat__label">Total de Usuários</span><strong id="us-total" class="stat__value">5</strong></div>
+              <i data-icon="users" class="stat__icon c-indigo"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Usuários Ativos</span><strong id="us-ativos" class="stat__value c-green">4</strong></div>
+              <i data-icon="shield" class="stat__icon c-green"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Usuários Inativos</span><strong id="us-inativos" class="stat__value c-gray">1</strong></div>
+              <i data-icon="users" class="stat__icon c-gray"></i>
+            </div>
+            <div class="stat">
+              <div><span class="stat__label">Administradores</span><strong id="us-admins" class="stat__value c-purple">1</strong></div>
+              <i data-icon="shield" class="stat__icon c-purple"></i>
+            </div>
+          </div>
+
+          <div class="users-actions">
+            <button type="button" id="add-user" class="btn btn--primary"><i data-icon="user-plus"></i>Adicionar Usuário</button>
+          </div>
+
+          <div class="panel table-panel">
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Usuário</th><th>Matrícula</th><th>Perfil</th><th>Status</th><th>Último Acesso</th><th class="ta-right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="users-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="infobox">
+            <h4><i data-icon="info"></i>Gerenciamento de Usuários</h4>
+            <ul>
+              <li>Somente administradores podem gerenciar usuários</li>
+              <li>Todas as ações são registradas em logs do sistema</li>
+              <li>Perfis diferentes possuem permissões específicas</li>
+              <li>Senhas devem ter no mínimo 8 caracteres</li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <div id="user-modal" class="modal" hidden>
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="um-title">
+      <h3 id="um-title">Adicionar Novo Usuário</h3>
+      <form id="user-form" novalidate>
+        <div class="field">
+          <label for="um-nome">Nome Completo</label>
+          <input id="um-nome" class="input input--lg" type="text" placeholder="Digite o nome" autocomplete="off">
+          <p class="field__error" data-error-for="um-nome"></p>
+        </div>
+        <div class="field">
+          <label for="um-mat">Matrícula</label>
+          <input id="um-mat" class="input input--lg" type="text" placeholder="Digite a matrícula" autocomplete="off">
+          <p class="field__error" data-error-for="um-mat"></p>
+        </div>
+        <div class="field">
+          <label for="um-email">E-mail</label>
+          <input id="um-email" class="input input--lg" type="email" placeholder="Digite o e-mail" autocomplete="off">
+          <p class="field__error" data-error-for="um-email"></p>
+        </div>
+        <div class="field">
+          <label for="um-perfil">Perfil</label>
+          <div class="select select--full select--lg">
+            <select id="um-perfil">
+              <option value="COL">Colaborador</option>
+              <option value="GES">Gestor de Frota</option>
+              <option value="ADM">Administrador</option>
+            </select>
+            <i data-icon="chevron-down"></i>
+          </div>
+        </div>
+        <div class="modal__actions">
+          <button type="button" id="um-cancel" class="btn btn--outline">Cancelar</button>
+          <button type="submit" class="btn btn--primary">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
