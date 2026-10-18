@@ -27,6 +27,10 @@
     'square-pen': '<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/>',
     'trash': '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
     'info': '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+    'tag': '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    'eye': '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
+    'power': '<path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/>',
+    'x': '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
     'menu': '<line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>'
   };
 
@@ -78,68 +82,45 @@
     { nome: 'Carlos Lima', email: 'carlos.lima@dexco.com', mat: 'GES002', perfil: 'GES', ativo: false, acesso: '19/10/2024' }
   ];
 
-  const vehicles = [
-    {
-      placa: 'ABC-1234', marca: 'Volvo', modelo: 'FH 540', tipo: 'Cavalo Mecânico', ano: 2022, status: 'regular', atencao: 0,
-      docs: [
-        { tipo: 'CRLV', numero: '45123789065', emissao: '15/03/2024', validade: '15/03/2025', status: 'valido' },
-        { tipo: 'Licenciamento', numero: 'LIC-2024-011', emissao: '15/03/2024', validade: '15/03/2025', status: 'valido' },
-        { tipo: 'Vistoria', numero: 'VIST-2024-007', emissao: '20/06/2024', validade: '20/12/2024', status: 'valido' }
-      ]
-    },
-    {
-      placa: 'DEF-5678', marca: 'Mercedes-Benz', modelo: 'Actros', tipo: 'Cavalo Mecânico', ano: 2021, status: 'atencao', atencao: 1,
-      docs: [
-        { tipo: 'CRLV', numero: '98765432109', emissao: '09/12/2023', validade: '09/12/2024', status: 'proximo' },
-        { tipo: 'Licenciamento', numero: 'LIC-2023-045', emissao: '09/12/2023', validade: '09/12/2024', status: 'proximo' },
-        { tipo: 'Vistoria', numero: 'VIST-2024-023', emissao: '14/05/2024', validade: '14/11/2024', status: 'valido' }
-      ]
-    },
-    {
-      placa: 'GHI-9012', marca: 'Scania', modelo: 'R 450', tipo: 'Cavalo Mecânico', ano: 2023, status: 'regular', atencao: 0,
-      docs: [
-        { tipo: 'CRLV', numero: '31987654021', emissao: '02/02/2024', validade: '02/02/2025', status: 'valido' },
-        { tipo: 'Licenciamento', numero: 'LIC-2024-019', emissao: '02/02/2024', validade: '02/02/2025', status: 'valido' },
-        { tipo: 'Vistoria', numero: 'VIST-2024-012', emissao: '10/07/2024', validade: '10/01/2025', status: 'valido' }
-      ]
-    },
-    {
-      placa: 'JKL-3456', marca: 'Volkswagen', modelo: 'Constellation', tipo: 'Caminhão', ano: 2020, status: 'vencido', atencao: 2,
-      docs: [
-        { tipo: 'CRLV', numero: '77412589630', emissao: '30/09/2023', validade: '30/09/2024', status: 'vencido' },
-        { tipo: 'Licenciamento', numero: 'LIC-2023-032', emissao: '30/09/2023', validade: '30/09/2024', status: 'vencido' },
-        { tipo: 'Vistoria', numero: 'VIST-2024-015', emissao: '05/08/2024', validade: '05/02/2025', status: 'valido' }
-      ]
-    },
-    {
-      placa: 'MNO-7890', marca: 'Ford', modelo: 'Cargo 2429', tipo: 'Caminhão', ano: 2021, status: 'regular', atencao: 0,
-      docs: [
-        { tipo: 'CRLV', numero: '60321456987', emissao: '18/04/2024', validade: '18/04/2025', status: 'valido' },
-        { tipo: 'Licenciamento', numero: 'LIC-2024-027', emissao: '18/04/2024', validade: '18/04/2025', status: 'valido' },
-        { tipo: 'Vistoria', numero: 'VIST-2024-018', emissao: '22/08/2024', validade: '22/02/2025', status: 'valido' }
-      ]
-    },
-    {
-      placa: 'PQR-1234', marca: 'Iveco', modelo: 'Tector', tipo: 'Caminhão', ano: 2022, status: 'atencao', atencao: 1,
-      docs: [
-        { tipo: 'CRLV', numero: '25896314702', emissao: '11/12/2023', validade: '11/12/2024', status: 'proximo' },
-        { tipo: 'Licenciamento', numero: 'LIC-2023-051', emissao: '11/12/2023', validade: '11/12/2024', status: 'proximo' },
-        { tipo: 'Vistoria', numero: 'VIST-2024-021', emissao: '30/09/2024', validade: '30/03/2025', status: 'valido' }
-      ]
-    }
+  const HOJE = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+  const DIAS_ALERTA = 30; // até quantos dias antes do vencimento o documento fica em "Atenção"
+  const addDias = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+  const parseDate = str => { const [d, m, y] = str.split('/').map(Number); return new Date(y, m - 1, d); };
+  const diffDias = (a, b) => Math.round((a - b) / 86400000);
+  const seedDoc = (tipo, numero, offset) => {
+    const val = addDias(HOJE, offset);
+    const emi = new Date(val);
+    emi.setMonth(emi.getMonth() - (tipo === 'Vistoria' ? 6 : 12));
+    return { tipo, numero, emissao: fmtDate(emi), validade: fmtDate(val) };
+  };
+
+  const diasPara = d => diffDias(parseDate(d.validade), HOJE);
+  const docStatus = d => { const n = diasPara(d); return n < 0 ? 'vencido' : n <= DIAS_ALERTA ? 'proximo' : 'valido'; };
+  const vehicleStatus = v => {
+    const st = v.docs.map(docStatus);
+    return st.includes('vencido') ? 'vencido' : st.includes('proximo') ? 'atencao' : 'regular';
+  };
+  const docsAtencao = v => v.docs.filter(d => docStatus(d) !== 'valido').length;
+
+  const tipos = [
+    { nome: 'Cavalo Mecânico', ativo: true },
+    { nome: 'Caminhão', ativo: true }
   ];
 
-  const alerts = {
-    vencidos: [
-      { veiculo: 'Volkswagen Constellation - JKL-3456', doc: 'CRLV', data: '30/09/2024', texto: 'Vencido há 48 dias' },
-      { veiculo: 'Volkswagen Constellation - JKL-3456', doc: 'Licenciamento', data: '30/09/2024', texto: 'Vencido há 48 dias' }
-    ],
-    proximos: [
-      { veiculo: 'Mercedes-Benz Actros - DEF-5678', doc: 'CRLV', data: '09/12/2024', texto: 'Vence em 5 dia(s)' },
-      { veiculo: 'Mercedes-Benz Actros - DEF-5678', doc: 'Licenciamento', data: '09/12/2024', texto: 'Vence em 5 dia(s)' },
-      { veiculo: 'Iveco Tector - PQR-1234', doc: 'CRLV', data: '11/12/2024', texto: 'Vence em 7 dia(s)' }
-    ]
-  };
+  const vehicles = [
+    { placa: 'ABC-1234', renavam: '10293847561', chassi: '9BVAB30C4NE100001', marca: 'Volvo', modelo: 'FH 540', tipo: 'Cavalo Mecânico', ano: 2022, historico: [],
+      docs: [seedDoc('CRLV', '45123789065', 220), seedDoc('Licenciamento', 'LIC-2024-011', 220), seedDoc('Vistoria', 'VIST-2024-007', 150)] },
+    { placa: 'DEF-5678', renavam: '20384756192', chassi: '9BM958S77MB200002', marca: 'Mercedes-Benz', modelo: 'Actros', tipo: 'Cavalo Mecânico', ano: 2021, historico: [],
+      docs: [seedDoc('CRLV', '98765432109', 5), seedDoc('Licenciamento', 'LIC-2023-045', 5), seedDoc('Vistoria', 'VIST-2024-023', 120)] },
+    { placa: 'GHI-9012', renavam: '30495867203', chassi: '9BSR4X20003300003', marca: 'Scania', modelo: 'R 450', tipo: 'Cavalo Mecânico', ano: 2023, historico: [],
+      docs: [seedDoc('CRLV', '31987654021', 180), seedDoc('Licenciamento', 'LIC-2024-019', 180), seedDoc('Vistoria', 'VIST-2024-012', 90)] },
+    { placa: 'JKL-3456', renavam: '40506978314', chassi: '9BW2B82U7LP400004', marca: 'Volkswagen', modelo: 'Constellation', tipo: 'Caminhão', ano: 2020, historico: [],
+      docs: [seedDoc('CRLV', '77412589630', -48), seedDoc('Licenciamento', 'LIC-2023-032', -48), seedDoc('Vistoria', 'VIST-2024-015', 75)] },
+    { placa: 'MNO-7890', renavam: '50617089425', chassi: '9BFE2AE5BMB500005', marca: 'Ford', modelo: 'Cargo 2429', tipo: 'Caminhão', ano: 2021, historico: [],
+      docs: [seedDoc('CRLV', '60321456987', 150), seedDoc('Licenciamento', 'LIC-2024-027', 150), seedDoc('Vistoria', 'VIST-2024-018', 100)] },
+    { placa: 'PQR-1234', renavam: '60728190536', chassi: '93ZM2PMH0NB600006', marca: 'Iveco', modelo: 'Tector', tipo: 'Caminhão', ano: 2022, historico: [],
+      docs: [seedDoc('CRLV', '25896314702', 200), seedDoc('Licenciamento', 'LIC-2023-051', 12), seedDoc('Vistoria', 'VIST-2024-021', 140)] }
+  ];
 
   const recentReports = [
     { nome: 'Relatório Geral - Novembro 2024', gerado: '14/11/2024', fmt: 'PDF' }
@@ -204,6 +185,11 @@
 
     if (view === 'documentos') showDocsList();
     if (view === 'inicio') renderVehicles();
+    if (view === 'alertas') renderAlerts();
+    if (view === 'relatorios') renderReportStats();
+    if (view === 'cadastrar') fillTipoSelect();
+    if (view === 'tipos') renderTipos();
+    if (view === 'usuarios') renderUsers();
     closeMenu();
     window.scrollTo(0, 0);
   }
@@ -215,13 +201,24 @@
 
   const openMenu = () => { $('#sidebar').classList.add('is-open'); $('#backdrop').hidden = false; };
   function closeMenu() { $('#sidebar').classList.remove('is-open'); $('#backdrop').hidden = true; }
+
+  function setCollapsed(on) {
+    $('#app').classList.toggle('is-collapsed', on);
+    $$('#nav button, #logout').forEach(b => {
+      if (on) b.title = b.textContent.trim(); else b.removeAttribute('title');
+    });
+    $('#collapse-toggle').setAttribute('aria-expanded', String(!on));
+  }
   $('#menu-toggle').addEventListener('click', openMenu);
+  $('#collapse-toggle').addEventListener('click', () => setCollapsed(!$('#app').classList.contains('is-collapsed')));
   $('#backdrop').addEventListener('click', closeMenu);
 
   function vehicleCard(v) {
-    const s = STATUS[v.status];
-    const note = v.atencao > 0
-      ? `<span class="vcard__note vcard__note--${v.status === 'vencido' ? 'danger' : 'warn'}">${v.atencao} documento(s) necessitando atenção</span>`
+    const st = vehicleStatus(v);
+    const s = STATUS[st];
+    const n = docsAtencao(v);
+    const note = n > 0
+      ? `<span class="vcard__note vcard__note--${st === 'vencido' ? 'danger' : 'warn'}">${n} documento(s) necessitando atenção</span>`
       : '';
     return `
       <article class="vcard" data-placa="${esc(v.placa)}" tabindex="0" role="button" aria-label="Ver documentos do veículo ${esc(v.placa)}">
@@ -241,9 +238,9 @@
 
   function renderStats() {
     $('#st-total').textContent = vehicles.length;
-    $('#st-reg').textContent = vehicles.filter(v => v.status === 'regular').length;
-    $('#st-aten').textContent = vehicles.filter(v => v.status === 'atencao').length;
-    $('#st-venc').textContent = vehicles.filter(v => v.status === 'vencido').length;
+    $('#st-reg').textContent = vehicles.filter(v => vehicleStatus(v) === 'regular').length;
+    $('#st-aten').textContent = vehicles.filter(v => vehicleStatus(v) === 'atencao').length;
+    $('#st-venc').textContent = vehicles.filter(v => vehicleStatus(v) === 'vencido').length;
   }
 
   function renderVehicles() {
@@ -252,7 +249,7 @@
     const st = $('#filtro-status').value;
     const list = vehicles.filter(v => {
       const hit = !q || [v.placa, v.marca, v.modelo, v.chassi || '', `${v.marca} ${v.modelo}`].some(t => norm(t).includes(q));
-      return hit && (st === 'todos' || v.status === st);
+      return hit && (st === 'todos' || vehicleStatus(v) === st);
     });
     $('#vehicle-grid').innerHTML = list.length
       ? list.map(vehicleCard).join('')
@@ -296,13 +293,15 @@
 
     $('#docs-list').hidden = true;
     $('#docs-detail').hidden = false;
+    $('#dd-edit').hidden = state.user.perfil !== 'ADM';
     $('#dd-placa').textContent = v.placa;
     $('#dd-modelo').textContent = `${v.marca} ${v.modelo} • ${v.tipo}`;
     $('#dd-total').textContent = v.docs.length;
 
     $('#doc-items').innerHTML = v.docs.length ? v.docs.map((d, i) => {
-      const s = DOC_STATUS[d.status];
-      const dateCls = d.status === 'proximo' ? 'is-warn' : d.status === 'vencido' ? 'is-danger' : '';
+      const st = docStatus(d);
+      const s = DOC_STATUS[st];
+      const dateCls = st === 'proximo' ? 'is-warn' : st === 'vencido' ? 'is-danger' : '';
       return `
         <article class="doc-item">
           <div class="doc-item__main">
@@ -319,23 +318,68 @@
               </div>
             </div>
           </div>
-          <button type="button" class="btn btn--primary btn--sm" data-download="${i}">${icon('download')}Baixar</button>
+          <div class="doc-item__actions">
+            <button type="button" class="btn btn--outline btn--sm" data-view-doc="${i}">${icon('eye')}Visualizar</button>
+            <button type="button" class="btn btn--primary btn--sm" data-download="${i}">${icon('download')}Baixar</button>
+          </div>
         </article>`;
     }).join('') : '<p class="empty">Nenhum documento cadastrado para este veículo.</p>';
+
+    $('#doc-history').hidden = v.historico.length === 0;
+    $('#doc-history-body').innerHTML = [...v.historico].reverse().map(h => `
+      <tr>
+        <td><span class="u-name">${esc(h.tipo)}</span></td>
+        <td>${esc(h.numero)}</td>
+        <td>${esc(h.validade)}</td>
+        <td>${esc(h.substituidoEm)}</td>
+        <td>${esc(h.por)}</td>
+      </tr>`).join('');
     window.scrollTo(0, 0);
   }
 
   $('#docs-back').addEventListener('click', showDocsList);
 
   $('#doc-items').addEventListener('click', e => {
-    const b = e.target.closest('[data-download]');
-    if (!b) return;
     const v = vehicles.find(x => x.placa === state.currentPlaca);
-    const d = v.docs[+b.dataset.download];
-    const text = `Frotto\nVeículo: ${v.placa}\nDocumento: ${d.tipo}\nNúmero: ${d.numero}\nEmissão: ${d.emissao}\nValidade: ${d.validade}\n\n(Arquivo ilustrativo gerado pelo protótipo.)`;
-    download(`${d.tipo}-${v.placa}.txt`, text, 'text/plain');
+    const dl = e.target.closest('[data-download]');
+    const vw = e.target.closest('[data-view-doc]');
+    if (vw) return openDocPreview(v, v.docs[+vw.dataset.viewDoc]);
+    if (!dl) return;
+    const d = v.docs[+dl.dataset.download];
+    if (d.arquivo) {
+      const a = document.createElement('a');
+      a.href = d.arquivo.url; a.download = d.arquivo.nome;
+      document.body.appendChild(a); a.click(); a.remove();
+    } else {
+      const text = `Frotto\nVeículo: ${v.placa}\nDocumento: ${d.tipo}\nNúmero: ${d.numero}\nEmissão: ${d.emissao}\nValidade: ${d.validade}\n\n(Arquivo ilustrativo gerado pelo protótipo.)`;
+      download(`${d.tipo}-${v.placa}.txt`, text, 'text/plain');
+    }
     toast(`Download iniciado: ${d.tipo} - ${v.placa}`);
   });
+
+  function openDocPreview(v, d) {
+    const s = DOC_STATUS[docStatus(d)];
+    let file;
+    if (d.arquivo && d.arquivo.mime.startsWith('image/')) {
+      file = `<img src="${d.arquivo.url}" alt="Documento ${esc(d.tipo)} do veículo ${esc(v.placa)}">`;
+    } else if (d.arquivo && d.arquivo.mime === 'application/pdf') {
+      file = `<iframe src="${d.arquivo.url}" title="Documento ${esc(d.tipo)}"></iframe>`;
+    } else {
+      file = `<div class="dm-file__ph">${icon('file-text')}<p>Documento ilustrativo: o arquivo original não está disponível neste protótipo.</p></div>`;
+    }
+    $('#dm-title').textContent = `${d.tipo} - ${v.placa}`;
+    $('#dm-body').innerHTML = `
+      <div class="dm-info">
+        <div><span>Veículo</span><b>${esc(v.marca)} ${esc(v.modelo)}</b></div>
+        <div><span>Situação</span><span class="badge badge--${s.cls}" style="display:inline-flex">${icon(s.icon)}${s.label}</span></div>
+        <div><span>Número</span><b>${esc(d.numero)}</b></div>
+        <div><span>Validade</span><b>${esc(d.validade)}</b></div>
+        <div><span>Emissão</span><b>${esc(d.emissao)}</b></div>
+        <div><span>Arquivo</span><b>${d.arquivo ? esc(d.arquivo.nome) : '-'}</b></div>
+      </div>
+      <div class="dm-file">${file}</div>`;
+    openModal($('#doc-modal'));
+  }
 
   function download(name, content, type) {
     const blob = new Blob([content], { type: `${type};charset=utf-8` });
@@ -396,6 +440,9 @@
   ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('is-over'); }));
   dz.addEventListener('drop', e => chooseFile(e.dataTransfer.files[0]));
 
+  const isoToBr = iso => iso.split('-').reverse().join('/');
+  const UP_FIELDS = ['up-veiculo', 'up-tipo', 'up-numero', 'up-emissao', 'up-validade', 'up-file'];
+
   $('#upload-form').addEventListener('submit', e => {
     e.preventDefault();
     if (!['ADM', 'GES'].includes(state.user.perfil)) {
@@ -403,28 +450,56 @@
     }
     const placa = $('#up-veiculo').value;
     const tipo = $('#up-tipo').value;
-    setFieldError('up-veiculo', placa ? '' : 'Selecione o veículo.');
-    setFieldError('up-tipo', tipo ? '' : 'Selecione o tipo de documento.');
-    if (!state.file) setFieldError('up-file', 'Selecione um arquivo para enviar.');
-    if (!placa || !tipo || !state.file) return;
+    const numero = $('#up-numero').value.trim();
+    const emissao = $('#up-emissao').value;
+    const validade = $('#up-validade').value;
+
+    const errs = {
+      'up-veiculo': placa ? '' : 'Selecione o veículo.',
+      'up-tipo': tipo ? '' : 'Selecione o tipo de documento.',
+      'up-numero': numero.length >= 3 ? '' : 'Informe o número do documento.',
+      'up-emissao': emissao ? '' : 'Informe a data de emissão.',
+      'up-validade': !validade ? 'Informe a data de validade.'
+        : (emissao && validade < emissao) ? 'A validade não pode ser anterior à emissão.' : '',
+      'up-file': state.file ? '' : 'Selecione um arquivo para enviar.'
+    };
+    Object.entries(errs).forEach(([id, msg]) => setFieldError(id, msg));
+    if (Object.values(errs).some(Boolean)) return;
 
     const v = vehicles.find(x => x.placa === placa);
-    const hoje = new Date();
-    const fim = new Date(hoje); fim.setFullYear(fim.getFullYear() + 1);
-    const prefix = { CRLV: '', Licenciamento: 'LIC-', Vistoria: 'VIST-' }[tipo];
-    const numero = `${prefix}${hoje.getFullYear()}-${pad(Math.floor(Math.random() * 900) + 100)}`;
-    const novo = { tipo, numero, emissao: fmtDate(hoje), validade: fmtDate(fim), status: 'valido' };
+    const novo = {
+      tipo, numero, emissao: isoToBr(emissao), validade: isoToBr(validade),
+      arquivo: { nome: state.file.name, mime: state.file.type, url: URL.createObjectURL(state.file) }
+    };
 
     const idx = v.docs.findIndex(d => d.tipo === tipo);
     const acao = idx >= 0 ? 'Atualização' : 'Envio';
-    if (idx >= 0) v.docs[idx] = novo; else v.docs.push(novo);
+    if (idx >= 0) {
+      v.historico.push({ ...v.docs[idx], substituidoEm: fmtDate(new Date()), por: state.user.nome });
+      v.docs[idx] = novo;
+    } else {
+      v.docs.push(novo);
+    }
 
-    history.push({ data: fmtDate(hoje), usuario: state.user.nome, acao, veiculo: v.placa, documento: tipo, arquivo: state.file.name });
-    toast(`Documento ${tipo} enviado para ${v.placa}.`);
+    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao, veiculo: v.placa, documento: tipo, arquivo: state.file.name });
+    toast(`Documento ${tipo} ${idx >= 0 ? 'atualizado' : 'enviado'} para ${v.placa}. Situação: ${DOC_STATUS[docStatus(novo)].label}.`);
     $('#upload-form').reset();
     chooseFile(null);
-    ['up-veiculo', 'up-tipo', 'up-file'].forEach(id => setFieldError(id, ''));
+    UP_FIELDS.forEach(id => setFieldError(id, ''));
   });
+
+  function computeAlerts() {
+    const out = { vencidos: [], proximos: [] };
+    vehicles.forEach(v => v.docs.forEach(d => {
+      const n = diasPara(d);
+      const item = { veiculo: `${v.marca} ${v.modelo} - ${v.placa}`, doc: d.tipo, data: d.validade, dias: n };
+      if (n < 0) out.vencidos.push({ ...item, texto: `Vencido há ${-n} ${-n === 1 ? 'dia' : 'dias'}` });
+      else if (n <= DIAS_ALERTA) out.proximos.push({ ...item, texto: n === 0 ? 'Vence hoje' : `Vence em ${n} dia(s)` });
+    }));
+    out.vencidos.sort((a, b) => a.dias - b.dias);
+    out.proximos.sort((a, b) => a.dias - b.dias);
+    return out;
+  }
 
   function alertItem(a, kind) {
     return `
@@ -439,11 +514,12 @@
   }
 
   function renderAlerts() {
-    $('#alert-vencidos').innerHTML = alerts.vencidos.map(a => alertItem(a, 'danger')).join('');
-    $('#alert-proximos').innerHTML = alerts.proximos.map(a => alertItem(a, 'warn')).join('');
-    $('#al-total').textContent = alerts.vencidos.length + alerts.proximos.length;
-    $('#al-venc').textContent = $('#al-venc-count').textContent = alerts.vencidos.length;
-    $('#al-prox').textContent = $('#al-prox-count').textContent = alerts.proximos.length;
+    const al = computeAlerts();
+    $('#alert-vencidos').innerHTML = al.vencidos.length ? al.vencidos.map(a => alertItem(a, 'danger')).join('') : '<p class="empty">Nenhum documento vencido.</p>';
+    $('#alert-proximos').innerHTML = al.proximos.length ? al.proximos.map(a => alertItem(a, 'warn')).join('') : '<p class="empty">Nenhum documento próximo do vencimento.</p>';
+    $('#al-total').textContent = al.vencidos.length + al.proximos.length;
+    $('#al-venc').textContent = $('#al-venc-count').textContent = al.vencidos.length;
+    $('#al-prox').textContent = $('#al-prox-count').textContent = al.proximos.length;
   }
 
   $('#report-types').addEventListener('click', e => {
@@ -453,19 +529,27 @@
     $$('#report-types .option').forEach(o => o.classList.toggle('is-selected', o === b));
   });
 
+  function renderReportStats() {
+    const all = vehicles.flatMap(v => v.docs.map(docStatus));
+    $('#rp-total').textContent = vehicles.length;
+    $('#rp-validos').textContent = all.filter(x => x === 'valido').length;
+    $('#rp-prox').textContent = all.filter(x => x === 'proximo').length;
+    $('#rp-venc').textContent = all.filter(x => x === 'vencido').length;
+  }
+
   function buildReport(type) {
     const rows = [];
     if (type === 'geral') {
       rows.push(['Placa', 'Marca', 'Modelo', 'Tipo', 'Ano', 'Status']);
-      vehicles.forEach(v => rows.push([v.placa, v.marca, v.modelo, v.tipo, v.ano, STATUS[v.status].label]));
+      vehicles.forEach(v => rows.push([v.placa, v.marca, v.modelo, v.tipo, v.ano, STATUS[vehicleStatus(v)].label]));
     } else if (type === 'vencidos') {
       rows.push(['Placa', 'Documento', 'Número', 'Validade', 'Situação']);
-      vehicles.forEach(v => v.docs.filter(d => d.status !== 'valido')
-        .forEach(d => rows.push([v.placa, d.tipo, d.numero, d.validade, DOC_STATUS[d.status].label])));
+      vehicles.forEach(v => v.docs.filter(d => docStatus(d) !== 'valido')
+        .forEach(d => rows.push([v.placa, d.tipo, d.numero, d.validade, DOC_STATUS[docStatus(d)].label])));
     } else if (type === 'veiculo') {
       rows.push(['Placa', 'Documento', 'Número', 'Emissão', 'Validade', 'Situação']);
       vehicles.forEach(v => v.docs
-        .forEach(d => rows.push([v.placa, d.tipo, d.numero, d.emissao, d.validade, DOC_STATUS[d.status].label])));
+        .forEach(d => rows.push([v.placa, d.tipo, d.numero, d.emissao, d.validade, DOC_STATUS[docStatus(d)].label])));
     } else {
       rows.push(['Data', 'Usuário', 'Ação', 'Veículo', 'Documento', 'Arquivo']);
       history.forEach(h => rows.push([h.data, h.usuario, h.acao, h.veiculo, h.documento, h.arquivo]));
@@ -538,6 +622,36 @@
   vf.renavam.addEventListener('input', () => { vf.renavam.value = vf.renavam.value.replace(/\D/g, ''); });
   vf.ano.addEventListener('input', () => { vf.ano.value = vf.ano.value.replace(/\D/g, ''); });
 
+  const anoMaximo = () => new Date().getFullYear() + 1;
+
+  function validateVehicle(v, ignorar = null) {
+    const raw = v.placa.replace('-', '');
+    const errs = {
+      placa: /^[A-Z]{3}\d[A-Z0-9]\d{2}$/.test(raw) ? '' : 'Placa inválida. Use o formato ABC-1234 ou ABC1D23.',
+      renavam: /^\d{11}$/.test(v.renavam) ? '' : 'Renavam inválido. Informe 11 dígitos numéricos.',
+      chassi: /^[A-HJ-NPR-Z0-9]{17}$/.test(v.chassi) ? '' : 'Chassi inválido. Informe 17 caracteres (sem I, O ou Q).',
+      marca: v.marca.length >= 2 ? '' : 'Informe a marca do veículo.',
+      modelo: v.modelo.length >= 1 ? '' : 'Informe o modelo do veículo.',
+      tipo: v.tipo ? '' : 'Selecione o tipo de veículo.',
+      ano: (/^\d{4}$/.test(v.ano) && +v.ano >= 1980 && +v.ano <= anoMaximo()) ? '' : `Ano inválido. Informe entre 1980 e ${anoMaximo()}.`
+    };
+    if (!Object.values(errs).some(Boolean)) {
+      const dup = vehicles.find(x => x !== ignorar &&
+        (x.placa.replace('-', '') === raw || x.chassi === v.chassi || x.renavam === v.renavam));
+      if (dup) errs.placa = 'Veículo já cadastrado com esta placa, chassi ou Renavam.';
+    }
+    return errs;
+  }
+
+  const formatPlaca = raw => /^[A-Z]{3}\d{4}$/.test(raw) ? `${raw.slice(0, 3)}-${raw.slice(3)}` : raw;
+
+  function fillTipoSelect() {
+    const atual = vf.tipo.value;
+    vf.tipo.innerHTML = '<option value="">Selecione o tipo</option>' +
+      tipos.filter(t => t.ativo).map(t => `<option value="${esc(t.nome)}">${esc(t.nome)}</option>`).join('');
+    if (tipos.some(t => t.ativo && t.nome === atual)) vf.tipo.value = atual;
+  }
+
   function clearVehicleForm() {
     $('#vehicle-form').reset();
     ['v-placa', 'v-renavam', 'v-chassi', 'v-marca', 'v-modelo', 'v-tipo', 'v-ano'].forEach(id => setFieldError(id, ''));
@@ -546,45 +660,117 @@
 
   $('#vehicle-form').addEventListener('submit', e => {
     e.preventDefault();
-    const placa = vf.placa.value.trim().toUpperCase();
-    const placaRaw = placa.replace('-', '');
-    const renavam = vf.renavam.value.trim();
-    const chassi = vf.chassi.value.replace(/\s+/g, '').toUpperCase();
-    const marca = vf.marca.value.trim();
-    const modelo = vf.modelo.value.trim();
-    const tipo = vf.tipo.value;
-    const ano = vf.ano.value.trim();
-    const anoMax = new Date().getFullYear() + 1;
-
-    const errs = {
-      'v-placa': /^[A-Z]{3}\d[A-Z0-9]\d{2}$/.test(placaRaw) ? '' : 'Placa inválida. Use o formato ABC-1234 ou ABC1D23.',
-      'v-renavam': /^\d{11}$/.test(renavam) ? '' : 'Renavam inválido. Informe 11 dígitos numéricos.',
-      'v-chassi': /^[A-HJ-NPR-Z0-9]{17}$/.test(chassi) ? '' : 'Chassi inválido. Informe 17 caracteres (sem I, O ou Q).',
-      'v-marca': marca.length >= 2 ? '' : 'Informe a marca do veículo.',
-      'v-modelo': modelo.length >= 1 ? '' : 'Informe o modelo do veículo.',
-      'v-tipo': tipo ? '' : 'Selecione o tipo de veículo.',
-      'v-ano': (/^\d{4}$/.test(ano) && +ano >= 1980 && +ano <= anoMax) ? '' : `Ano inválido. Informe entre 1980 e ${anoMax}.`
+    const dados = {
+      placa: vf.placa.value.trim().toUpperCase(),
+      renavam: vf.renavam.value.trim(),
+      chassi: vf.chassi.value.replace(/\s+/g, '').toUpperCase(),
+      marca: vf.marca.value.trim(),
+      modelo: vf.modelo.value.trim(),
+      tipo: vf.tipo.value,
+      ano: vf.ano.value.trim()
     };
-    Object.entries(errs).forEach(([id, msg]) => setFieldError(id, msg));
-    if (Object.values(errs).some(Boolean)) return;
-
-    const dup = vehicles.find(v => v.placa.replace('-', '') === placaRaw || (v.chassi && v.chassi === chassi) || (v.renavam && v.renavam === renavam));
-    if (dup) {
-      setFieldError('v-placa', 'Veículo já cadastrado com esta placa, chassi ou Renavam.');
-      return toast('Veículo já cadastrado.', true);
+    const errs = validateVehicle(dados);
+    Object.entries(errs).forEach(([k, msg]) => setFieldError(`v-${k}`, msg));
+    if (Object.values(errs).some(Boolean)) {
+      if (errs.placa.startsWith('Veículo já')) toast('Veículo já cadastrado.', true);
+      return;
     }
 
-    const placaFmt = /^[A-Z]{3}\d{4}$/.test(placaRaw) ? `${placaRaw.slice(0, 3)}-${placaRaw.slice(3)}` : placaRaw;
-    vehicles.push({
-      placa: placaFmt, renavam, chassi, marca, modelo, tipo, ano: +ano, cor: vf.cor.value.trim(),
-      status: 'regular', atencao: 0, docs: []
-    });
+    const placaFmt = formatPlaca(dados.placa.replace('-', ''));
+    vehicles.push({ ...dados, placa: placaFmt, ano: +dados.ano, cor: vf.cor.value.trim(), docs: [], historico: [] });
     history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de veículo', veiculo: placaFmt, documento: '-', arquivo: '-' });
     fillUploadVehicles();
     renderStats();
     clearVehicleForm();
     toast(`Veículo ${placaFmt} cadastrado com sucesso.`);
   });
+
+  const evf = {
+    placa: $('#ev-placa'), renavam: $('#ev-renavam'), chassi: $('#ev-chassi'), marca: $('#ev-marca'),
+    modelo: $('#ev-modelo'), tipo: $('#ev-tipo'), ano: $('#ev-ano'), cor: $('#ev-cor')
+  };
+  const EV_KEYS = ['placa', 'renavam', 'chassi', 'marca', 'modelo', 'tipo', 'ano'];
+  let editingVehicle = null;
+
+  evf.placa.addEventListener('input', () => {
+    let v = evf.placa.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7);
+    if (/^[A-Z]{3}\d{4}$/.test(v)) v = v.slice(0, 3) + '-' + v.slice(3);
+    evf.placa.value = v;
+  });
+  evf.renavam.addEventListener('input', () => { evf.renavam.value = evf.renavam.value.replace(/\D/g, ''); });
+  evf.ano.addEventListener('input', () => { evf.ano.value = evf.ano.value.replace(/\D/g, ''); });
+
+  function openVehicleEdit(v) {
+    editingVehicle = v;
+    EV_KEYS.forEach(k => setFieldError(`ev-${k}`, ''));
+
+    evf.tipo.innerHTML = '<option value="">Selecione o tipo</option>' +
+      tipos.filter(t => t.ativo || t.nome === v.tipo).map(t => `<option value="${esc(t.nome)}">${esc(t.nome)}</option>`).join('');
+    evf.placa.value = v.placa; evf.renavam.value = v.renavam || ''; evf.chassi.value = v.chassi || '';
+    evf.marca.value = v.marca; evf.modelo.value = v.modelo; evf.tipo.value = v.tipo;
+    evf.ano.value = v.ano; evf.cor.value = v.cor || '';
+    openModal($('#vehicle-modal'));
+    evf.placa.focus();
+  }
+
+  $('#dd-edit').addEventListener('click', () => {
+    const v = vehicles.find(x => x.placa === state.currentPlaca);
+    if (v) openVehicleEdit(v);
+  });
+
+  $('#edit-vehicle-form').addEventListener('submit', e => {
+    e.preventDefault();
+    if (state.user.perfil !== 'ADM') return toast('Você não tem permissão para editar veículos.', true);
+    const dados = {
+      placa: evf.placa.value.trim().toUpperCase(),
+      renavam: evf.renavam.value.trim(),
+      chassi: evf.chassi.value.replace(/\s+/g, '').toUpperCase(),
+      marca: evf.marca.value.trim(),
+      modelo: evf.modelo.value.trim(),
+      tipo: evf.tipo.value,
+      ano: evf.ano.value.trim()
+    };
+    const errs = validateVehicle(dados, editingVehicle);
+    Object.entries(errs).forEach(([k, msg]) => setFieldError(`ev-${k}`, msg));
+    if (Object.values(errs).some(Boolean)) return;
+
+    const placaFmt = formatPlaca(dados.placa.replace('-', ''));
+    Object.assign(editingVehicle, { ...dados, placa: placaFmt, ano: +dados.ano, cor: evf.cor.value.trim() });
+    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de veículo', veiculo: placaFmt, documento: '-', arquivo: '-' });
+
+    closeModal($('#vehicle-modal'));
+    fillUploadVehicles();
+    renderStats();
+    showDocsDetail(placaFmt);
+    toast(`Veículo ${placaFmt} atualizado.`);
+  });
+
+  function openModal(el) { el.hidden = false; }
+  function closeModal(el) {
+    el.hidden = true;
+    if (el._onClose) { const f = el._onClose; el._onClose = null; f(); }
+  }
+  $$('.modal').forEach(m => {
+    m.addEventListener('mousedown', e => { if (e.target === m) closeModal(m); });
+    m.addEventListener('click', e => { if (e.target.closest('[data-close-modal]')) closeModal(m); });
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') $$('.modal:not([hidden])').forEach(closeModal);
+  });
+
+  function confirmDialog({ title, message, okLabel = 'Excluir' }) {
+    return new Promise(resolve => {
+      const m = $('#confirm-modal');
+      $('#cf-title').textContent = title;
+      $('#cf-msg').textContent = message;
+      $('#cf-ok').textContent = okLabel;
+      m._onClose = () => resolve(false);
+      $('#cf-ok').onclick = () => { m._onClose = null; closeModal(m); resolve(true); };
+      $('#cf-cancel').onclick = () => closeModal(m);
+      openModal(m);
+      $('#cf-cancel').focus();
+    });
+  }
 
   function renderUsers() {
     $('#us-total').textContent = users.length;
@@ -608,78 +794,166 @@
       </tr>`).join('');
   }
 
-  $('#users-body').addEventListener('click', e => {
-    const ed = e.target.closest('[data-edit]');
-    const dl = e.target.closest('[data-del]');
-    if (ed) {
-      const u = users[+ed.dataset.edit];
-      const nome = prompt('Nome do usuário:', u.nome);
-      if (nome === null) return;
-      const perfil = (prompt('Perfil (COL, GES ou ADM):', u.perfil) || '').toUpperCase();
-      if (!nome.trim() || !ROLES[perfil]) return toast('Dados inválidos. Use COL, GES ou ADM no perfil.', true);
-      const ativo = confirm('Manter o usuário como ATIVO?\nOK = Ativo • Cancelar = Inativo');
-      u.nome = nome.trim(); u.perfil = perfil; u.ativo = ativo;
-      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de usuário', veiculo: '-', documento: '-', arquivo: u.mat });
-      renderUsers();
-      toast('Usuário atualizado.');
-    }
-    if (dl) {
-      const i = +dl.dataset.del;
-      const u = users[i];
-      if (u === state.user) return toast('Você não pode excluir o próprio usuário.', true);
-      if (!confirm(`Excluir o usuário ${u.nome} (${u.mat})?`)) return;
-      users.splice(i, 1);
-      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Exclusão de usuário', veiculo: '-', documento: '-', arquivo: u.mat });
-      renderUsers();
-      toast('Usuário excluído.');
-    }
-  });
-
-  const modal = $('#user-modal');
+  const userModal = $('#user-modal');
   const UM_FIELDS = ['um-nome', 'um-mat', 'um-email'];
+  let editingUser = null;
 
-  function openUserModal() {
+  function openUserModal(u = null) {
+    editingUser = u;
     $('#user-form').reset();
     UM_FIELDS.forEach(id => setFieldError(id, ''));
-    modal.hidden = false;
+    $('#um-title').textContent = u ? 'Editar Usuário' : 'Adicionar Novo Usuário';
+    $('#um-submit').textContent = u ? 'Salvar' : 'Adicionar';
+    $('#um-status-field').hidden = !u;
+    $('#um-mat').disabled = !!u;
+    $('#um-perfil').disabled = !!u && u === state.user;
+    if (u) {
+      $('#um-nome').value = u.nome;
+      $('#um-mat').value = u.mat;
+      $('#um-email').value = u.email;
+      $('#um-perfil').value = u.perfil;
+      $('#um-status').value = u.ativo ? '1' : '0';
+    }
+    openModal(userModal);
     $('#um-nome').focus();
   }
-  function closeUserModal() { modal.hidden = true; }
 
-  $('#add-user').addEventListener('click', openUserModal);
-  $('#um-cancel').addEventListener('click', closeUserModal);
-  modal.addEventListener('mousedown', e => { if (e.target === modal) closeUserModal(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeUserModal(); });
+  $('#add-user').addEventListener('click', () => openUserModal());
 
   $('#user-form').addEventListener('submit', e => {
     e.preventDefault();
     const nome = $('#um-nome').value.trim();
-    const mat = $('#um-mat').value.trim().toUpperCase();
+    const mat = (editingUser ? editingUser.mat : $('#um-mat').value.trim().toUpperCase());
     const email = $('#um-email').value.trim();
-    const perfil = $('#um-perfil').value;
+    const perfil = editingUser && editingUser === state.user ? editingUser.perfil : $('#um-perfil').value;
+    const ativo = editingUser ? $('#um-status').value === '1' : true;
 
     const errs = {
       'um-nome': nome.length >= 3 ? '' : 'Informe o nome completo.',
       'um-mat': !/^[A-Z0-9]{3,12}$/.test(mat) ? 'Matrícula inválida. Use de 3 a 12 letras ou números.'
-        : users.some(u => u.mat === mat) ? 'Matrícula já cadastrada.' : '',
+        : (!editingUser && users.some(u => u.mat === mat)) ? 'Matrícula já cadastrada.' : '',
       'um-email': /^\S+@\S+\.\S+$/.test(email) ? '' : 'E-mail inválido. Use o formato nome@email.com.'
     };
     Object.entries(errs).forEach(([id, msg]) => setFieldError(id, msg));
     if (Object.values(errs).some(Boolean)) return;
 
-    users.push({ nome, email, mat, perfil, ativo: true, acesso: '-' });
-    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de usuário', veiculo: '-', documento: '-', arquivo: mat });
+    if (editingUser) {
+      if (editingUser === state.user && !ativo) return toast('Você não pode inativar o próprio usuário.', true);
+      Object.assign(editingUser, { nome, email, perfil, ativo });
+      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de usuário', veiculo: '-', documento: '-', arquivo: mat });
+      toast('Usuário atualizado.');
+    } else {
+      users.push({ nome, email, mat, perfil, ativo: true, acesso: '-' });
+      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de usuário', veiculo: '-', documento: '-', arquivo: mat });
+      toast(`Usuário ${nome} adicionado com a matrícula ${mat}.`);
+    }
     renderUsers();
-    closeUserModal();
-    toast(`Usuário ${nome} adicionado com a matrícula ${mat}.`);
+    closeModal(userModal);
+  });
+
+  $('#users-body').addEventListener('click', async e => {
+    const ed = e.target.closest('[data-edit]');
+    const dl = e.target.closest('[data-del]');
+    if (ed) return openUserModal(users[+ed.dataset.edit]);
+    if (!dl) return;
+    const u = users[+dl.dataset.del];
+    if (u === state.user) return toast('Você não pode excluir o próprio usuário.', true);
+    const ok = await confirmDialog({ title: 'Excluir usuário', message: `Deseja excluir o usuário ${u.nome} (${u.mat})? Esta ação não pode ser desfeita.` });
+    if (!ok) return;
+    users.splice(users.indexOf(u), 1);
+    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Exclusão de usuário', veiculo: '-', documento: '-', arquivo: u.mat });
+    renderUsers();
+    toast('Usuário excluído.');
+  });
+
+  const typeModal = $('#type-modal');
+  let editingTipo = null;
+  const tipoEmUso = t => vehicles.filter(v => v.tipo === t.nome).length;
+
+  function renderTipos() {
+    $('#tipos-body').innerHTML = tipos.map((t, i) => `
+      <tr>
+        <td><span class="u-name">${esc(t.nome)}</span></td>
+        <td>${tipoEmUso(t)}</td>
+        <td><span class="st ${t.ativo ? 'st--on' : 'st--off'}">${t.ativo ? 'Ativo' : 'Inativo'}</span></td>
+        <td>
+          <div class="actions">
+            <button type="button" class="icon-btn edit" data-tedit="${i}" aria-label="Editar ${esc(t.nome)}">${icon('square-pen')}</button>
+            <button type="button" class="icon-btn tgl" data-ttoggle="${i}" aria-label="${t.ativo ? 'Inativar' : 'Ativar'} ${esc(t.nome)}" title="${t.ativo ? 'Inativar' : 'Ativar'}">${icon('power')}</button>
+            <button type="button" class="icon-btn del" data-tdel="${i}" aria-label="Excluir ${esc(t.nome)}">${icon('trash')}</button>
+          </div>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="4" class="empty">Nenhum tipo cadastrado.</td></tr>';
+  }
+
+  function openTypeModal(t = null) {
+    editingTipo = t;
+    $('#type-form').reset();
+    setFieldError('tp-nome', '');
+    $('#tm-title').textContent = t ? 'Editar Tipo' : 'Adicionar Novo Tipo';
+    $('#tm-submit').textContent = t ? 'Salvar' : 'Adicionar';
+    if (t) $('#tp-nome').value = t.nome;
+    openModal(typeModal);
+    $('#tp-nome').focus();
+  }
+
+  $('#add-tipo').addEventListener('click', () => openTypeModal());
+
+  $('#type-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const nome = $('#tp-nome').value.trim();
+    const dup = tipos.some(t => t !== editingTipo && norm(t.nome) === norm(nome));
+    const err = nome.length < 3 ? 'Informe o nome do tipo (mínimo de 3 caracteres).' : dup ? 'Tipo já cadastrado.' : '';
+    setFieldError('tp-nome', err);
+    if (err) return;
+
+    if (editingTipo) {
+      vehicles.forEach(v => { if (v.tipo === editingTipo.nome) v.tipo = nome; });
+      editingTipo.nome = nome;
+      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de tipo de veículo', veiculo: '-', documento: '-', arquivo: nome });
+      toast('Tipo de veículo atualizado.');
+    } else {
+      tipos.push({ nome, ativo: true });
+      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de tipo de veículo', veiculo: '-', documento: '-', arquivo: nome });
+      toast(`Tipo ${nome} adicionado.`);
+    }
+    renderTipos();
+    fillTipoSelect();
+    closeModal(typeModal);
+  });
+
+  $('#tipos-body').addEventListener('click', async e => {
+    const ed = e.target.closest('[data-tedit]');
+    const tg = e.target.closest('[data-ttoggle]');
+    const dl = e.target.closest('[data-tdel]');
+    if (ed) return openTypeModal(tipos[+ed.dataset.tedit]);
+    if (tg) {
+      const t = tipos[+tg.dataset.ttoggle];
+      t.ativo = !t.ativo;
+      renderTipos(); fillTipoSelect();
+      return toast(`Tipo ${t.nome} ${t.ativo ? 'ativado' : 'inativado'}.`);
+    }
+    if (dl) {
+      const t = tipos[+dl.dataset.tdel];
+      const n = tipoEmUso(t);
+      if (n > 0) return toast(`Tipo em uso por ${n} veículo(s). Inative-o em vez de excluir.`, true);
+      const ok = await confirmDialog({ title: 'Excluir tipo de veículo', message: `Deseja excluir o tipo ${t.nome}?` });
+      if (!ok) return;
+      tipos.splice(tipos.indexOf(t), 1);
+      renderTipos(); fillTipoSelect();
+      toast('Tipo de veículo excluído.');
+    }
   });
 
   function renderAll() {
     renderVehicles();
     fillUploadVehicles();
     renderAlerts();
+    renderReportStats();
     renderRecent();
     renderUsers();
+    renderTipos();
+    fillTipoSelect();
   }
 
   hydrateIcons();
