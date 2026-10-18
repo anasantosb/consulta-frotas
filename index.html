@@ -38,6 +38,18 @@
       <button type="submit" class="btn btn--primary btn--block">Entrar</button>
     </form>
 
+    <div class="login__demo">
+      <strong>Usuários para teste</strong>
+      <p>Informe a matrícula e qualquer senha com 8 ou mais caracteres.</p>
+      <ul>
+        <li><b>ADM001</b> – Administrador (acesso completo)</li>
+        <li><b>GES001</b> – Gestor de Frota</li>
+        <li><b>COL001</b> – Colaborador</li>
+        <li><b>COL002</b> – Colaborador</li>
+        <li><b>GES002</b> – Gestor de Frota (inativo, acesso bloqueado)</li>
+      </ul>
+    </div>
+
     <p class="login__footer">© 2025 Frotto - Todos os direitos reservados</p>
   </main>
 
@@ -45,29 +57,33 @@
 
     <aside id="sidebar" class="sidebar">
       <div class="sidebar__head">
-        <strong>Frotto</strong>
-        <span id="user-role">Administrador</span>
+        <button type="button" id="collapse-toggle" class="sidebar__toggle" aria-label="Recolher ou expandir menu" aria-expanded="true"><i data-icon="menu"></i></button>
+        <div class="sidebar__brand">
+          <strong><span class="brand-short">F</span><span class="label">rotto</span></strong>
+          <span id="user-role">Administrador</span>
+        </div>
       </div>
 
       <nav id="nav" class="sidebar__nav" aria-label="Menu principal">
-        <button type="button" data-view="inicio" data-title="Início" data-roles="ADM GES COL"><i data-icon="house"></i>Início</button>
-        <button type="button" data-view="documentos" data-title="Documentos" data-roles="ADM GES COL"><i data-icon="file-text"></i>Documentos</button>
-        <button type="button" data-view="enviar" data-title="Enviar Documentos" data-roles="ADM GES"><i data-icon="upload"></i>Enviar Documentos</button>
-        <button type="button" data-view="alertas" data-title="Alertas" data-roles="ADM"><i data-icon="bell"></i>Alertas</button>
-        <button type="button" data-view="relatorios" data-title="Relatórios" data-roles="ADM GES"><i data-icon="chart-column"></i>Relatórios</button>
-        <button type="button" data-view="cadastrar" data-title="Cadastrar Veículo" data-roles="ADM"><i data-icon="car"></i>Cadastrar Veículo</button>
-        <button type="button" data-view="usuarios" data-title="Usuários" data-roles="ADM"><i data-icon="users"></i>Usuários</button>
+        <button type="button" data-view="inicio" data-title="Início" data-roles="ADM GES COL"><i data-icon="house"></i><span class="label">Início</span></button>
+        <button type="button" data-view="documentos" data-title="Documentos" data-roles="ADM GES COL"><i data-icon="file-text"></i><span class="label">Documentos</span></button>
+        <button type="button" data-view="enviar" data-title="Enviar Documentos" data-roles="ADM GES"><i data-icon="upload"></i><span class="label">Enviar Documentos</span></button>
+        <button type="button" data-view="alertas" data-title="Alertas" data-roles="ADM GES COL"><i data-icon="bell"></i><span class="label">Alertas</span></button>
+        <button type="button" data-view="relatorios" data-title="Relatórios" data-roles="ADM GES"><i data-icon="chart-column"></i><span class="label">Relatórios</span></button>
+        <button type="button" data-view="cadastrar" data-title="Cadastrar Veículo" data-roles="ADM"><i data-icon="car"></i><span class="label">Cadastrar Veículo</span></button>
+        <button type="button" data-view="tipos" data-title="Tipos de Veículo" data-roles="ADM"><i data-icon="tag"></i><span class="label">Tipos de Veículo</span></button>
+        <button type="button" data-view="usuarios" data-title="Usuários" data-roles="ADM"><i data-icon="users"></i><span class="label">Usuários</span></button>
       </nav>
 
       <div class="sidebar__foot">
-        <button type="button" id="logout"><i data-icon="log-out"></i>Sair</button>
+        <button type="button" id="logout"><i data-icon="log-out"></i><span class="label">Sair</span></button>
       </div>
     </aside>
     <div id="backdrop" class="backdrop" hidden></div>
 
     <div class="main">
       <header class="topbar">
-        <button type="button" id="menu-toggle" class="topbar__menu" aria-label="Abrir menu"><i data-icon="menu"></i></button>
+        <button type="button" id="menu-toggle" class="topbar__menu" aria-label="Alternar menu" aria-expanded="true"><i data-icon="menu"></i></button>
         <h2 id="page-title">Início</h2>
         <div class="topbar__sys">
           <strong>Frotto</strong>
@@ -75,6 +91,7 @@
       </header>
 
       <div class="content">
+
         <section id="view-inicio" class="view" hidden>
           <div class="stats">
             <div class="stat">
@@ -115,15 +132,16 @@
         </section>
 
         <section id="view-documentos" class="view" hidden>
-          <!-- Lista de veículos (entrada pelo menu) -->
           <div id="docs-list">
             <div id="doc-vehicle-grid" class="vgrid"></div>
           </div>
 
-          <!-- Detalhe do veículo -->
           <div id="docs-detail" hidden>
             <div class="panel docs-head">
-              <button type="button" id="docs-back" class="link-back"><i data-icon="arrow-left"></i>Voltar para Lista</button>
+              <div class="docs-head__top">
+                <button type="button" id="docs-back" class="link-back"><i data-icon="arrow-left"></i>Voltar para Lista</button>
+                <button type="button" id="dd-edit" class="btn btn--outline btn--sm" hidden><i data-icon="square-pen"></i>Editar Veículo</button>
+              </div>
               <div class="docs-head__row">
                 <div>
                   <h3 id="dd-placa">DEF-5678</h3>
@@ -136,9 +154,19 @@
               </div>
             </div>
             <div id="doc-items" class="doc-items"></div>
+
+            <div id="doc-history" class="panel table-panel" hidden>
+              <h3 class="panel-title">Histórico de Versões</h3>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead><tr><th>Documento</th><th>Número</th><th>Validade</th><th>Substituído em</th><th>Por</th></tr></thead>
+                  <tbody id="doc-history-body"></tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
-
+        
         <section id="view-enviar" class="view" hidden>
           <div class="narrow">
             <form id="upload-form" class="panel form-panel" novalidate>
@@ -165,6 +193,25 @@
                   <i data-icon="chevron-down"></i>
                 </div>
                 <p class="field__error" data-error-for="up-tipo"></p>
+              </div>
+
+              <div class="field">
+                <label for="up-numero">Número do Documento *</label>
+                <input id="up-numero" class="input" type="text" placeholder="Ex: LIC-2025-001" autocomplete="off">
+                <p class="field__error" data-error-for="up-numero"></p>
+              </div>
+
+              <div class="form-grid">
+                <div class="field">
+                  <label for="up-emissao">Data de Emissão *</label>
+                  <input id="up-emissao" class="input" type="date">
+                  <p class="field__error" data-error-for="up-emissao"></p>
+                </div>
+                <div class="field">
+                  <label for="up-validade">Data de Validade *</label>
+                  <input id="up-validade" class="input" type="date">
+                  <p class="field__error" data-error-for="up-validade"></p>
+                </div>
               </div>
 
               <div class="field">
@@ -222,10 +269,10 @@
 
         <section id="view-relatorios" class="view" hidden>
           <div class="stats">
-            <div class="bigstat bigstat--indigo"><span>Total de Veículos</span><strong>48</strong></div>
-            <div class="bigstat bigstat--green"><span>Documentos Válidos</span><strong>132</strong></div>
-            <div class="bigstat bigstat--yellow"><span>Próximos Vencimento</span><strong>12</strong></div>
-            <div class="bigstat bigstat--red"><span>Documentos Vencidos</span><strong>8</strong></div>
+            <div class="bigstat bigstat--indigo"><span>Total de Veículos</span><strong id="rp-total">0</strong></div>
+            <div class="bigstat bigstat--green"><span>Documentos Válidos</span><strong id="rp-validos">0</strong></div>
+            <div class="bigstat bigstat--yellow"><span>Próximos Vencimento</span><strong id="rp-prox">0</strong></div>
+            <div class="bigstat bigstat--red"><span>Documentos Vencidos</span><strong id="rp-venc">0</strong></div>
           </div>
 
           <div class="panel report-panel">
@@ -385,6 +432,32 @@
           </div>
         </section>
 
+        <section id="view-tipos" class="view" hidden>
+          <div class="users-actions">
+            <button type="button" id="add-tipo" class="btn btn--primary"><i data-icon="tag"></i>Adicionar Tipo</button>
+          </div>
+
+          <div class="panel table-panel">
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr><th>Tipo de Veículo</th><th>Veículos Cadastrados</th><th>Status</th><th class="ta-right">Ações</th></tr>
+                </thead>
+                <tbody id="tipos-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="infobox">
+            <h4><i data-icon="info"></i>Tipos de Veículo</h4>
+            <ul>
+              <li>Somente administradores podem gerenciar os tipos</li>
+              <li>Os tipos ativos aparecem no cadastro de veículos</li>
+              <li>Tipos em uso não podem ser excluídos, apenas inativados</li>
+            </ul>
+          </div>
+        </section>
+
       </div>
     </div>
   </div>
@@ -419,11 +492,115 @@
             <i data-icon="chevron-down"></i>
           </div>
         </div>
+        <div id="um-status-field" class="field" hidden>
+          <label for="um-status">Status</label>
+          <div class="select select--full select--lg">
+            <select id="um-status">
+              <option value="1">Ativo</option>
+              <option value="0">Inativo</option>
+            </select>
+            <i data-icon="chevron-down"></i>
+          </div>
+        </div>
         <div class="modal__actions">
-          <button type="button" id="um-cancel" class="btn btn--outline">Cancelar</button>
-          <button type="submit" class="btn btn--primary">Adicionar</button>
+          <button type="button" class="btn btn--outline" data-close-modal>Cancelar</button>
+          <button type="submit" id="um-submit" class="btn btn--primary">Adicionar</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div id="vehicle-modal" class="modal" hidden>
+    <div class="modal__box modal__box--md" role="dialog" aria-modal="true" aria-labelledby="ev-title">
+      <h3 id="ev-title">Editar Veículo</h3>
+      <form id="edit-vehicle-form" novalidate>
+        <div class="form-grid">
+          <div class="field">
+            <label for="ev-placa">Placa *</label>
+            <input id="ev-placa" class="input" type="text" placeholder="ABC-1234" maxlength="8">
+            <p class="field__error" data-error-for="ev-placa"></p>
+          </div>
+          <div class="field">
+            <label for="ev-renavam">Renavam *</label>
+            <input id="ev-renavam" class="input" type="text" placeholder="00000000000" inputmode="numeric" maxlength="11">
+            <p class="field__error" data-error-for="ev-renavam"></p>
+          </div>
+          <div class="field field--full">
+            <label for="ev-chassi">Chassi *</label>
+            <input id="ev-chassi" class="input" type="text" placeholder="9BW ZZZ377VR004251" maxlength="20">
+            <p class="field__error" data-error-for="ev-chassi"></p>
+          </div>
+          <div class="field">
+            <label for="ev-marca">Marca *</label>
+            <input id="ev-marca" class="input" type="text" placeholder="Ex: Volvo, Mercedes, Scania">
+            <p class="field__error" data-error-for="ev-marca"></p>
+          </div>
+          <div class="field">
+            <label for="ev-modelo">Modelo *</label>
+            <input id="ev-modelo" class="input" type="text" placeholder="Ex: FH 540, Actros">
+            <p class="field__error" data-error-for="ev-modelo"></p>
+          </div>
+          <div class="field">
+            <label for="ev-tipo">Tipo de Veículo *</label>
+            <div class="select select--full">
+              <select id="ev-tipo"></select>
+              <i data-icon="chevron-down"></i>
+            </div>
+            <p class="field__error" data-error-for="ev-tipo"></p>
+          </div>
+          <div class="field">
+            <label for="ev-ano">Ano de Fabricação *</label>
+            <input id="ev-ano" class="input" type="text" placeholder="2024" inputmode="numeric" maxlength="4">
+            <p class="field__error" data-error-for="ev-ano"></p>
+          </div>
+          <div class="field">
+            <label for="ev-cor">Cor</label>
+            <input id="ev-cor" class="input" type="text" placeholder="Ex: Branco, Azul">
+          </div>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--outline" data-close-modal>Cancelar</button>
+          <button type="submit" class="btn btn--primary">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="type-modal" class="modal" hidden>
+    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="tm-title">
+      <h3 id="tm-title">Adicionar Novo Tipo</h3>
+      <form id="type-form" novalidate>
+        <div class="field">
+          <label for="tp-nome">Nome do Tipo</label>
+          <input id="tp-nome" class="input input--lg" type="text" placeholder="Ex: Carreta, Utilitário" autocomplete="off">
+          <p class="field__error" data-error-for="tp-nome"></p>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--outline" data-close-modal>Cancelar</button>
+          <button type="submit" id="tm-submit" class="btn btn--primary">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="modal" hidden>
+    <div class="modal__box modal__box--sm" role="alertdialog" aria-modal="true" aria-labelledby="cf-title">
+      <h3 id="cf-title">Confirmar</h3>
+      <p id="cf-msg" class="modal__text"></p>
+      <div class="modal__actions">
+        <button type="button" id="cf-cancel" class="btn btn--outline">Cancelar</button>
+        <button type="button" id="cf-ok" class="btn btn--red">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="doc-modal" class="modal" hidden>
+    <div class="modal__box modal__box--wide" role="dialog" aria-modal="true" aria-labelledby="dm-title">
+      <div class="modal__head">
+        <h3 id="dm-title">Documento</h3>
+        <button type="button" class="icon-btn" data-close-modal aria-label="Fechar"><i data-icon="x"></i></button>
+      </div>
+      <div id="dm-body"></div>
     </div>
   </div>
 
