@@ -74,27 +74,86 @@
     vencido: { label: 'Vencido', cls: 'danger', icon: 'triangle-alert' }
   };
 
-  const users = [
-    { nome: 'João Silva', email: 'joao.silva@dexco.com', mat: 'COL001', perfil: 'COL', ativo: true, acesso: '17/11/2024' },
-    { nome: 'Maria Santos', email: 'maria.santos@dexco.com', mat: 'GES001', perfil: 'GES', ativo: true, acesso: '17/11/2024' },
-    { nome: 'Pedro Oliveira', email: 'pedro.oliveira@dexco.com', mat: 'ADM001', perfil: 'ADM', ativo: true, acesso: '16/11/2024' },
-    { nome: 'Ana Costa', email: 'ana.costa@dexco.com', mat: 'COL002', perfil: 'COL', ativo: true, acesso: '14/11/2024' },
-    { nome: 'Carlos Lima', email: 'carlos.lima@dexco.com', mat: 'GES002', perfil: 'GES', ativo: false, acesso: '19/10/2024' }
-  ];
+  const API = 'https://uxvuwreecszglyuyscwz.supabase.co';
+  const KEY = 'sb_publishable_oLWDNC9lpk6tN1tsRp5RRw_3nyrxrEJ';
+  let accessToken = null;
+  let users = [], tipos = [], vehicles = [], history = [], recentReports = [];
+  const api = async (path, options = {}) => {
+    const headers = { apikey: KEY, Authorization: `Bearer ${accessToken || KEY}`, ...options.headers };
+    if (options.body && !(options.body instanceof FormData) && !(options.body instanceof Blob)) headers['Content-Type'] = 'application/json';
+    const response = await fetch(`${API}${path}`, { ...options, headers });
+    if (!response.ok) { const error = await response.json().catch(() => ({})); throw new Error(error.message || error.error_description || `Erro HTTP ${response.status}`); }
+    const data = await response.text();
+    return data ? JSON.parse(data) : null;
+  };
+  const table = (name, query = '') => api(`/rest/v1/${name}?${query}`, { headers: { Accept: 'application/json' } });
+  const write = (name, method, payload, filter = '') => api(`/rest/v1/${name}?${filter}`, {
+    method, body: payload == null ? undefined : JSON.stringify(payload),
+    headers: { Prefer: 'return=representation' }
+  });
+  const attempt = async (work) => { try { return await work(); } catch (err) { console.error(err); toast(err.message, true); return null; } };
+  const toISO = br => br ? br.split('/').reverse().join('-') : null;
+  const fromISO = iso => iso ? iso.slice(0, 10).split('-').reverse().join('/') : '-';
+  const recordHistory = async (acao, detalhe = '') => {
+    if (!state.user) return;
+    await write('historico_atividades', 'POST', { usuario_id: state.user.id, acao, descricao: detalhe });
+  };
+  async function loadData() {
+    const [dbUsers, dbTipos, dbVehicles, dbDocs, dbHistory, dbDocHistory] = await Promise.all([
+      table('usuarios', 'select=*'), table('tipos_veiculo', 'select=*'), table('veiculos', 'select=*'),
+      table('documentos', 'select=*'), table('historico_atividades', 'select=*&order=data_atividade.desc'),
+      table('historico_documentos', 'select=*&order=data_alteracao.desc')
+    ]);
+    users = dbUsers.map(u => ({ ...u, mat: u.matricula, ativo: u.situacao === 'ATIVO', acesso: fromISO(u.ultimo_acesso) }));
+    tipos = dbTipos.map(t => ({ ...t, nome: t.descricao, ativo: t.ativo !== false }));
+    vehicles = dbVehicles.map(v => ({ ...v, tipo: tipos.find(t => t.id === v.tipo_veiculo_id)?.nome || '', docs: [], historico: [] }));
+    dbDocs.forEach(d => { const v = vehicles.find(v => v.id === d.veiculo_id); if (v) v.docs.push({ ...d, tipo: d.tipo_documento, emissao: fromISO(d.data_emissao), validade: fromISO(d.data_vencimento), numero: d.numero || '', arquivo_url: d.arquivo_url }); });
+    dbDocHistory.forEach(h => { const d = dbDocs.find(d => d.id === h.documento_id); const v = vehicles.find(v => v.id === d?.veiculo_id); if (v) v.historico.push({ tipo: d.tipo_documento, numero: d.numero || '', validade: fromISO(d.data_vencimento), substituidoEm: fromISO(h.data_alteracao), por: users.find(u => u.id === h.usuario_id)?.nome || '-', descricao: h.descricao }); });
+    history = dbHistory.map(h => ({ data: fromISO(h.data_atividade), usuario: users.find(u => u.id === h.usuario_id)?.nome || '-', acao: h.acao, veiculo: '-', documento: '-', arquivo: h.descricao || '-' }));
+    if (state.user) state.user = users.find(u => u.id === state.user.id) || state.user;
+    renderAll();
+  }
+  const refresh = async () => { await loadData(); };
+  const tipoId = nome => tipos.find(t => t.nome === nome)?.id || null;
+  const saveSession = session => { accessToken = session.access_token; sessionStorage.setItem('frotto_session', JSON.stringify(session)); };
+  const logoutSession = () => { accessToken = null; sessionStorage.removeItem('frotto_session'); };
+  async function signIn(email, password) {
+    const session = await api('/auth/v1/token?grant_type=password', { method: 'POST', body: JSON.stringify({ email, password }) });
+    saveSession(session);
+    return session;
+  }
+  async function restoreSession() {
+    const saved = JSON.parse(sessionStorage.getItem('frotto_session') || 'null');
+    if (!saved?.refresh_token) return;
+    const session = await api('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: JSON.stringify({ refresh_token: saved.refresh_token }) });
+    saveSession(session);
+    const profile = await table('usuarios', `select=*&auth_id=eq.${session.user.id}`);
+    if (!profile.length || profile[0].situacao !== 'ATIVO') throw new Error('Usuário sem perfil ativo.');
+    state.user = { ...profile[0], mat: profile[0].matricula, ativo: true };
+    await loadData(); startApp();
+  }
+  async function uploadFile(file, veiculoId) {
+    const clean = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const path = `${veiculoId}/${crypto.randomUUID()}-${clean}`;
+    const result = await fetch(`${API}/storage/v1/object/documentos/${path}`, {
+      method: 'POST', headers: { apikey: KEY, Authorization: `Bearer ${accessToken}`, 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' }, body: file
+    });
+    if (!result.ok) throw new Error((await result.json().catch(() => ({}))).message || 'Falha ao enviar arquivo.');
+    return path;
+  }
+  async function signedFile(path, download = false) {
+    const result = await api(`/storage/v1/object/sign/documentos/${path}`, { method: 'POST', body: JSON.stringify({ expiresIn: 300, ...(download ? { download: true } : {}) }) });
+    return `${API}/storage/v1${result.signedURL}`;
+  }
 
-  const HOJE = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
+    const HOJE = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })();
   const DIAS_ALERTA = 30; // até quantos dias antes do vencimento o documento fica em "Atenção"
   const addDias = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
   const parseDate = str => { const [d, m, y] = str.split('/').map(Number); return new Date(y, m - 1, d); };
   const diffDias = (a, b) => Math.round((a - b) / 86400000);
-  const seedDoc = (tipo, numero, offset) => {
-    const val = addDias(HOJE, offset);
-    const emi = new Date(val);
-    emi.setMonth(emi.getMonth() - (tipo === 'Vistoria' ? 6 : 12));
-    return { tipo, numero, emissao: fmtDate(emi), validade: fmtDate(val) };
-  };
+  // Dados demonstrativos removidos. As datas são provenientes do Supabase.
 
-  const diasPara = d => diffDias(parseDate(d.validade), HOJE);
+    const diasPara = d => d.validade && d.validade !== '-' ? diffDias(parseDate(d.validade), HOJE) : 999999;
   const docStatus = d => { const n = diasPara(d); return n < 0 ? 'vencido' : n <= DIAS_ALERTA ? 'proximo' : 'valido'; };
   const vehicleStatus = v => {
     const st = v.docs.map(docStatus);
@@ -102,33 +161,9 @@
   };
   const docsAtencao = v => v.docs.filter(d => docStatus(d) !== 'valido').length;
 
-  const tipos = [
-    { nome: 'Cavalo Mecânico', ativo: true },
-    { nome: 'Caminhão', ativo: true }
-  ];
+  // Arrays carregados exclusivamente do banco de dados.
 
-  const vehicles = [
-    { placa: 'ABC-1234', renavam: '10293847561', chassi: '9BVAB30C4NE100001', marca: 'Volvo', modelo: 'FH 540', tipo: 'Cavalo Mecânico', ano: 2022, historico: [],
-      docs: [seedDoc('CRLV', '45123789065', 220), seedDoc('Licenciamento', 'LIC-2024-011', 220), seedDoc('Vistoria', 'VIST-2024-007', 150)] },
-    { placa: 'DEF-5678', renavam: '20384756192', chassi: '9BM958S77MB200002', marca: 'Mercedes-Benz', modelo: 'Actros', tipo: 'Cavalo Mecânico', ano: 2021, historico: [],
-      docs: [seedDoc('CRLV', '98765432109', 5), seedDoc('Licenciamento', 'LIC-2023-045', 5), seedDoc('Vistoria', 'VIST-2024-023', 120)] },
-    { placa: 'GHI-9012', renavam: '30495867203', chassi: '9BSR4X20003300003', marca: 'Scania', modelo: 'R 450', tipo: 'Cavalo Mecânico', ano: 2023, historico: [],
-      docs: [seedDoc('CRLV', '31987654021', 180), seedDoc('Licenciamento', 'LIC-2024-019', 180), seedDoc('Vistoria', 'VIST-2024-012', 90)] },
-    { placa: 'JKL-3456', renavam: '40506978314', chassi: '9BW2B82U7LP400004', marca: 'Volkswagen', modelo: 'Constellation', tipo: 'Caminhão', ano: 2020, historico: [],
-      docs: [seedDoc('CRLV', '77412589630', -48), seedDoc('Licenciamento', 'LIC-2023-032', -48), seedDoc('Vistoria', 'VIST-2024-015', 75)] },
-    { placa: 'MNO-7890', renavam: '50617089425', chassi: '9BFE2AE5BMB500005', marca: 'Ford', modelo: 'Cargo 2429', tipo: 'Caminhão', ano: 2021, historico: [],
-      docs: [seedDoc('CRLV', '60321456987', 150), seedDoc('Licenciamento', 'LIC-2024-027', 150), seedDoc('Vistoria', 'VIST-2024-018', 100)] },
-    { placa: 'PQR-1234', renavam: '60728190536', chassi: '93ZM2PMH0NB600006', marca: 'Iveco', modelo: 'Tector', tipo: 'Caminhão', ano: 2022, historico: [],
-      docs: [seedDoc('CRLV', '25896314702', 200), seedDoc('Licenciamento', 'LIC-2023-051', 12), seedDoc('Vistoria', 'VIST-2024-021', 140)] }
-  ];
-
-  const recentReports = [
-    { nome: 'Relatório Geral - Novembro 2024', gerado: '14/11/2024', fmt: 'PDF' }
-  ];
-
-  const history = []; 
-
-  const REPORT_NAMES = {
+    const REPORT_NAMES = {
     geral: 'Relatório Geral da Frota',
     vencidos: 'Documentos Vencidos e a Vencer',
     veiculo: 'Relatório por Veículo',
@@ -137,25 +172,23 @@
 
   const state = { user: null, view: 'inicio', reportType: 'historico', currentPlaca: null, file: null };
 
-  $('#login-form').addEventListener('submit', e => {
+  $('#login-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const mat = $('#matricula').value.trim().toUpperCase();
+    const email = $('#matricula').value.trim();
     const senha = $('#senha').value;
     const err = $('#login-error');
-    const fail = msg => { err.textContent = msg; err.hidden = false; };
-
-    if (!mat || !senha) return fail('Informe matrícula e senha.');
-    if (senha.length < 8) return fail('A senha deve ter no mínimo 8 caracteres.');
-    const u = users.find(x => x.mat === mat);
-    if (!u) return fail('Matrícula ou senha inválida.');
-    if (!u.ativo) return fail('Usuário inativo. Procure um administrador.');
-
-    err.hidden = true;
-    state.user = u;
-    startApp();
+    try {
+      if (!email || !senha) throw new Error('Informe e-mail e senha.');
+      const session = await signIn(email, senha);
+      const profiles = await table('usuarios', `select=*&auth_id=eq.${session.user.id}`);
+      if (!profiles.length || profiles[0].situacao !== 'ATIVO') throw new Error('Usuário sem perfil ativo.');
+      state.user = { ...profiles[0], mat: profiles[0].matricula, ativo: true };
+      await loadData();
+      err.hidden = true; startApp();
+    } catch (error) { logoutSession(); err.textContent = error.message; err.hidden = false; }
   });
 
-  function startApp() {
+    function startApp() {
     $('#login-screen').hidden = true;
     $('#app').hidden = false;
     $('#user-role').textContent = ROLES[state.user.perfil];
@@ -168,6 +201,7 @@
   }
 
   $('#logout').addEventListener('click', () => {
+    logoutSession();
     state.user = null;
     $('#app').hidden = true;
     $('#login-screen').hidden = false;
@@ -294,6 +328,7 @@
     $('#docs-list').hidden = true;
     $('#docs-detail').hidden = false;
     $('#dd-edit').hidden = state.user.perfil !== 'ADM';
+    deleteVehicleButton.hidden = state.user.perfil !== 'ADM';
     $('#dd-placa').textContent = v.placa;
     $('#dd-modelo').textContent = `${v.marca} ${v.modelo} • ${v.tipo}`;
     $('#dd-total').textContent = v.docs.length;
@@ -321,6 +356,7 @@
           <div class="doc-item__actions">
             <button type="button" class="btn btn--outline btn--sm" data-view-doc="${i}">${icon('eye')}Visualizar</button>
             <button type="button" class="btn btn--primary btn--sm" data-download="${i}">${icon('download')}Baixar</button>
+            ${state.user.perfil === 'ADM' ? `<button type="button" class="btn btn--outline btn--sm" data-delete-doc="${i}">${icon('trash')}Excluir</button>` : ''}
           </div>
         </article>`;
     }).join('') : '<p class="empty">Nenhum documento cadastrado para este veículo.</p>';
@@ -339,49 +375,40 @@
 
   $('#docs-back').addEventListener('click', showDocsList);
 
-  $('#doc-items').addEventListener('click', e => {
+  $('#doc-items').addEventListener('click', async e => {
     const v = vehicles.find(x => x.placa === state.currentPlaca);
+    const del = e.target.closest('[data-delete-doc]');
+    if (del) {
+      const d = v.docs[Number(del.dataset.deleteDoc)];
+      if (state.user.perfil !== 'ADM' || !await confirmDialog({ title: 'Excluir documento', message: `Excluir ${d.tipo} de ${v.placa}?` })) return;
+      return attempt(async () => {
+        await write('historico_documentos', 'DELETE', null, `documento_id=eq.${d.id}`);
+        await write('documentos', 'DELETE', null, `id=eq.${d.id}`);
+        await recordHistory('Exclusão de documento', `${v.placa} - ${d.tipo}`);
+        await refresh(); showDocsDetail(v.placa); toast('Documento excluído.');
+      });
+    }
     const dl = e.target.closest('[data-download]');
     const vw = e.target.closest('[data-view-doc]');
-    if (vw) return openDocPreview(v, v.docs[+vw.dataset.viewDoc]);
-    if (!dl) return;
-    const d = v.docs[+dl.dataset.download];
-    if (d.arquivo) {
-      const a = document.createElement('a');
-      a.href = d.arquivo.url; a.download = d.arquivo.nome;
-      document.body.appendChild(a); a.click(); a.remove();
-    } else {
-      const text = `Frotto\nVeículo: ${v.placa}\nDocumento: ${d.tipo}\nNúmero: ${d.numero}\nEmissão: ${d.emissao}\nValidade: ${d.validade}\n\n(Arquivo ilustrativo gerado pelo protótipo.)`;
-      download(`${d.tipo}-${v.placa}.txt`, text, 'text/plain');
-    }
-    toast(`Download iniciado: ${d.tipo} - ${v.placa}`);
+    if (!dl && !vw) return;
+    const d = v.docs[Number((dl || vw).dataset.download ?? vw.dataset.viewDoc)];
+    if (!d.arquivo_url) return toast('Arquivo não cadastrado.', true);
+    await attempt(async () => {
+      const url = await signedFile(d.arquivo_url, !!dl);
+      if (dl) window.open(url, '_blank', 'noopener');
+      else openDocPreview(v, d, url);
+    });
   });
-
-  function openDocPreview(v, d) {
+  function openDocPreview(v, d, url) {
     const s = DOC_STATUS[docStatus(d)];
-    let file;
-    if (d.arquivo && d.arquivo.mime.startsWith('image/')) {
-      file = `<img src="${d.arquivo.url}" alt="Documento ${esc(d.tipo)} do veículo ${esc(v.placa)}">`;
-    } else if (d.arquivo && d.arquivo.mime === 'application/pdf') {
-      file = `<iframe src="${d.arquivo.url}" title="Documento ${esc(d.tipo)}"></iframe>`;
-    } else {
-      file = `<div class="dm-file__ph">${icon('file-text')}<p>Documento ilustrativo: o arquivo original não está disponível neste protótipo.</p></div>`;
-    }
+    const ext = d.arquivo_url.split('.').pop().toLowerCase();
+    const file = ['png','jpg','jpeg'].includes(ext) ? `<img src="${esc(url)}" alt="Documento">` : `<iframe src="${esc(url)}" title="Documento"></iframe>`;
     $('#dm-title').textContent = `${d.tipo} - ${v.placa}`;
-    $('#dm-body').innerHTML = `
-      <div class="dm-info">
-        <div><span>Veículo</span><b>${esc(v.marca)} ${esc(v.modelo)}</b></div>
-        <div><span>Situação</span><span class="badge badge--${s.cls}" style="display:inline-flex">${icon(s.icon)}${s.label}</span></div>
-        <div><span>Número</span><b>${esc(d.numero)}</b></div>
-        <div><span>Validade</span><b>${esc(d.validade)}</b></div>
-        <div><span>Emissão</span><b>${esc(d.emissao)}</b></div>
-        <div><span>Arquivo</span><b>${d.arquivo ? esc(d.arquivo.nome) : '-'}</b></div>
-      </div>
-      <div class="dm-file">${file}</div>`;
+    $('#dm-body').innerHTML = `<div class="dm-info"><div><span>Veículo</span><b>${esc(v.marca)} ${esc(v.modelo)}</b></div><div><span>Situação</span><b>${s.label}</b></div><div><span>Número</span><b>${esc(d.numero)}</b></div><div><span>Validade</span><b>${esc(d.validade)}</b></div></div><div class="dm-file">${file}</div>`;
     openModal($('#doc-modal'));
   }
 
-  function download(name, content, type) {
+    function download(name, content, type) {
     const blob = new Blob([content], { type: `${type};charset=utf-8` });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
@@ -443,52 +470,28 @@
   const isoToBr = iso => iso.split('-').reverse().join('/');
   const UP_FIELDS = ['up-veiculo', 'up-tipo', 'up-numero', 'up-emissao', 'up-validade', 'up-file'];
 
-  $('#upload-form').addEventListener('submit', e => {
+  $('#upload-form').addEventListener('submit', async e => {
     e.preventDefault();
-    if (!['ADM', 'GES'].includes(state.user.perfil)) {
-      return toast('Você não tem permissão para enviar documentos.', true);
-    }
-    const placa = $('#up-veiculo').value;
-    const tipo = $('#up-tipo').value;
-    const numero = $('#up-numero').value.trim();
-    const emissao = $('#up-emissao').value;
-    const validade = $('#up-validade').value;
-
-    const errs = {
-      'up-veiculo': placa ? '' : 'Selecione o veículo.',
-      'up-tipo': tipo ? '' : 'Selecione o tipo de documento.',
-      'up-numero': numero.length >= 3 ? '' : 'Informe o número do documento.',
-      'up-emissao': emissao ? '' : 'Informe a data de emissão.',
-      'up-validade': !validade ? 'Informe a data de validade.'
-        : (emissao && validade < emissao) ? 'A validade não pode ser anterior à emissão.' : '',
-      'up-file': state.file ? '' : 'Selecione um arquivo para enviar.'
-    };
-    Object.entries(errs).forEach(([id, msg]) => setFieldError(id, msg));
-    if (Object.values(errs).some(Boolean)) return;
-
-    const v = vehicles.find(x => x.placa === placa);
-    const novo = {
-      tipo, numero, emissao: isoToBr(emissao), validade: isoToBr(validade),
-      arquivo: { nome: state.file.name, mime: state.file.type, url: URL.createObjectURL(state.file) }
-    };
-
-    const idx = v.docs.findIndex(d => d.tipo === tipo);
-    const acao = idx >= 0 ? 'Atualização' : 'Envio';
-    if (idx >= 0) {
-      v.historico.push({ ...v.docs[idx], substituidoEm: fmtDate(new Date()), por: state.user.nome });
-      v.docs[idx] = novo;
-    } else {
-      v.docs.push(novo);
-    }
-
-    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao, veiculo: v.placa, documento: tipo, arquivo: state.file.name });
-    toast(`Documento ${tipo} ${idx >= 0 ? 'atualizado' : 'enviado'} para ${v.placa}. Situação: ${DOC_STATUS[docStatus(novo)].label}.`);
-    $('#upload-form').reset();
-    chooseFile(null);
-    UP_FIELDS.forEach(id => setFieldError(id, ''));
+    if (!['ADM','GES'].includes(state.user.perfil)) return toast('Sem permissão.', true);
+    const v = vehicles.find(x => x.placa === $('#up-veiculo').value);
+    const tipo = $('#up-tipo').value, numero = $('#up-numero').value.trim();
+    const emissao = $('#up-emissao').value, validade = $('#up-validade').value;
+    if (!v || !tipo || !numero || !emissao || !validade || !state.file || validade < emissao) return toast('Preencha os campos corretamente e selecione um arquivo.', true);
+    await attempt(async () => {
+      const path = await uploadFile(state.file, v.id);
+      const old = v.docs.find(d => d.tipo === tipo);
+      const data = { veiculo_id: v.id, tipo_documento: tipo, numero, data_emissao: emissao, data_vencimento: validade, arquivo_url: path };
+      if (old) {
+        await write('historico_documentos', 'POST', { documento_id: old.id, usuario_id: state.user.id, descricao: `Arquivo anterior: ${old.arquivo_url || '-'}; número: ${old.numero}; validade: ${old.validade}` });
+        await write('documentos', 'PATCH', data, `id=eq.${old.id}`);
+      } else await write('documentos', 'POST', data);
+      await recordHistory(old ? 'Atualização de documento' : 'Envio de documento', `${v.placa} - ${tipo}`);
+      await refresh(); $('#upload-form').reset(); chooseFile(null);
+      toast('Documento salvo no Supabase.');
+    });
   });
 
-  function computeAlerts() {
+    function computeAlerts() {
     const out = { vencidos: [], proximos: [] };
     vehicles.forEach(v => v.docs.forEach(d => {
       const n = diasPara(d);
@@ -605,8 +608,7 @@
     const b = e.target.closest('[data-recent]');
     if (!b) return;
     const r = recentReports[+b.dataset.recent];
-    download(`${r.nome.replace(/\s+/g, '_')}.txt`, `${r.nome}\nGerado em ${r.gerado}\n\n(Arquivo ilustrativo gerado pelo protótipo.)`, 'text/plain');
-    toast(`Download iniciado: ${r.nome}`);
+    toast('Para obter o relatório novamente, selecione o tipo e exporte.', true);
   });
 
   const vf = {
@@ -658,34 +660,22 @@
   }
   $('#v-clear').addEventListener('click', clearVehicleForm);
 
-  $('#vehicle-form').addEventListener('submit', e => {
+  $('#vehicle-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const dados = {
-      placa: vf.placa.value.trim().toUpperCase(),
-      renavam: vf.renavam.value.trim(),
-      chassi: vf.chassi.value.replace(/\s+/g, '').toUpperCase(),
-      marca: vf.marca.value.trim(),
-      modelo: vf.modelo.value.trim(),
-      tipo: vf.tipo.value,
-      ano: vf.ano.value.trim()
-    };
+    if (state.user.perfil !== 'ADM') return toast('Sem permissão.', true);
+    const dados = { placa: vf.placa.value.trim().toUpperCase(), renavam: vf.renavam.value.trim(), chassi: vf.chassi.value.trim().toUpperCase(), marca: vf.marca.value.trim(), modelo: vf.modelo.value.trim(), tipo: vf.tipo.value, ano: vf.ano.value.trim() };
     const errs = validateVehicle(dados);
     Object.entries(errs).forEach(([k, msg]) => setFieldError(`v-${k}`, msg));
-    if (Object.values(errs).some(Boolean)) {
-      if (errs.placa.startsWith('Veículo já')) toast('Veículo já cadastrado.', true);
-      return;
-    }
-
-    const placaFmt = formatPlaca(dados.placa.replace('-', ''));
-    vehicles.push({ ...dados, placa: placaFmt, ano: +dados.ano, cor: vf.cor.value.trim(), docs: [], historico: [] });
-    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de veículo', veiculo: placaFmt, documento: '-', arquivo: '-' });
-    fillUploadVehicles();
-    renderStats();
-    clearVehicleForm();
-    toast(`Veículo ${placaFmt} cadastrado com sucesso.`);
+    if (Object.values(errs).some(Boolean)) return;
+    await attempt(async () => {
+      const placa = formatPlaca(dados.placa.replace('-', ''));
+      await write('veiculos', 'POST', { placa, renavam: dados.renavam, chassi: dados.chassi, marca: dados.marca, modelo: dados.modelo, ano: Number(dados.ano), tipo_veiculo_id: tipoId(dados.tipo), cor: vf.cor.value.trim() });
+      await recordHistory('Cadastro de veículo', placa);
+      await refresh(); clearVehicleForm(); toast(`Veículo ${placa} cadastrado.`);
+    });
   });
 
-  const evf = {
+    const evf = {
     placa: $('#ev-placa'), renavam: $('#ev-renavam'), chassi: $('#ev-chassi'), marca: $('#ev-marca'),
     modelo: $('#ev-modelo'), tipo: $('#ev-tipo'), ano: $('#ev-ano'), cor: $('#ev-cor')
   };
@@ -713,39 +703,39 @@
     evf.placa.focus();
   }
 
+  const deleteVehicleButton = document.createElement('button');
+  deleteVehicleButton.type = 'button';
+  deleteVehicleButton.className = 'btn btn--outline btn--sm';
+  deleteVehicleButton.textContent = 'Excluir veículo';
+  $('#dd-edit').insertAdjacentElement('afterend', deleteVehicleButton);
+  deleteVehicleButton.addEventListener('click', async () => {
+    const v = vehicles.find(x => x.placa === state.currentPlaca);
+    if (!v || state.user.perfil !== 'ADM') return;
+    if (v.docs.length) return toast('Exclua os documentos associados antes de excluir o veículo.', true);
+    if (!await confirmDialog({ title: 'Excluir veículo', message: `Excluir ${v.placa}?` })) return;
+    await attempt(async () => { await write('veiculos', 'DELETE', null, `id=eq.${v.id}`); await recordHistory('Exclusão de veículo', v.placa); await refresh(); showDocsList(); toast('Veículo excluído.'); });
+  });
   $('#dd-edit').addEventListener('click', () => {
     const v = vehicles.find(x => x.placa === state.currentPlaca);
     if (v) openVehicleEdit(v);
   });
 
-  $('#edit-vehicle-form').addEventListener('submit', e => {
+  $('#edit-vehicle-form').addEventListener('submit', async e => {
     e.preventDefault();
-    if (state.user.perfil !== 'ADM') return toast('Você não tem permissão para editar veículos.', true);
-    const dados = {
-      placa: evf.placa.value.trim().toUpperCase(),
-      renavam: evf.renavam.value.trim(),
-      chassi: evf.chassi.value.replace(/\s+/g, '').toUpperCase(),
-      marca: evf.marca.value.trim(),
-      modelo: evf.modelo.value.trim(),
-      tipo: evf.tipo.value,
-      ano: evf.ano.value.trim()
-    };
+    if (state.user.perfil !== 'ADM') return toast('Sem permissão.', true);
+    const dados = { placa: evf.placa.value.trim().toUpperCase(), renavam: evf.renavam.value.trim(), chassi: evf.chassi.value.trim().toUpperCase(), marca: evf.marca.value.trim(), modelo: evf.modelo.value.trim(), tipo: evf.tipo.value, ano: evf.ano.value.trim() };
     const errs = validateVehicle(dados, editingVehicle);
     Object.entries(errs).forEach(([k, msg]) => setFieldError(`ev-${k}`, msg));
     if (Object.values(errs).some(Boolean)) return;
-
-    const placaFmt = formatPlaca(dados.placa.replace('-', ''));
-    Object.assign(editingVehicle, { ...dados, placa: placaFmt, ano: +dados.ano, cor: evf.cor.value.trim() });
-    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de veículo', veiculo: placaFmt, documento: '-', arquivo: '-' });
-
-    closeModal($('#vehicle-modal'));
-    fillUploadVehicles();
-    renderStats();
-    showDocsDetail(placaFmt);
-    toast(`Veículo ${placaFmt} atualizado.`);
+    await attempt(async () => {
+      const placa = formatPlaca(dados.placa.replace('-', ''));
+      await write('veiculos', 'PATCH', { placa, renavam: dados.renavam, chassi: dados.chassi, marca: dados.marca, modelo: dados.modelo, ano: Number(dados.ano), tipo_veiculo_id: tipoId(dados.tipo), cor: evf.cor.value.trim() }, `id=eq.${editingVehicle.id}`);
+      await recordHistory('Alteração de veículo', placa);
+      closeModal($('#vehicle-modal')); await refresh(); showDocsDetail(placa); toast('Veículo atualizado.');
+    });
   });
 
-  function openModal(el) { el.hidden = false; }
+    function openModal(el) { el.hidden = false; }
   function closeModal(el) {
     el.hidden = true;
     if (el._onClose) { const f = el._onClose; el._onClose = null; f(); }
@@ -820,38 +810,21 @@
 
   $('#add-user').addEventListener('click', () => openUserModal());
 
-  $('#user-form').addEventListener('submit', e => {
+  $('#user-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const nome = $('#um-nome').value.trim();
-    const mat = (editingUser ? editingUser.mat : $('#um-mat').value.trim().toUpperCase());
-    const email = $('#um-email').value.trim();
-    const perfil = editingUser && editingUser === state.user ? editingUser.perfil : $('#um-perfil').value;
-    const ativo = editingUser ? $('#um-status').value === '1' : true;
-
-    const errs = {
-      'um-nome': nome.length >= 3 ? '' : 'Informe o nome completo.',
-      'um-mat': !/^[A-Z0-9]{3,12}$/.test(mat) ? 'Matrícula inválida. Use de 3 a 12 letras ou números.'
-        : (!editingUser && users.some(u => u.mat === mat)) ? 'Matrícula já cadastrada.' : '',
-      'um-email': /^\S+@\S+\.\S+$/.test(email) ? '' : 'E-mail inválido. Use o formato nome@email.com.'
-    };
-    Object.entries(errs).forEach(([id, msg]) => setFieldError(id, msg));
-    if (Object.values(errs).some(Boolean)) return;
-
-    if (editingUser) {
-      if (editingUser === state.user && !ativo) return toast('Você não pode inativar o próprio usuário.', true);
-      Object.assign(editingUser, { nome, email, perfil, ativo });
-      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de usuário', veiculo: '-', documento: '-', arquivo: mat });
-      toast('Usuário atualizado.');
-    } else {
-      users.push({ nome, email, mat, perfil, ativo: true, acesso: '-' });
-      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de usuário', veiculo: '-', documento: '-', arquivo: mat });
-      toast(`Usuário ${nome} adicionado com a matrícula ${mat}.`);
-    }
-    renderUsers();
-    closeModal(userModal);
+    const nome = $('#um-nome').value.trim(), mat = (editingUser?.mat || $('#um-mat').value.trim().toUpperCase()), email = $('#um-email').value.trim();
+    const perfil = $('#um-perfil').value, ativo = editingUser ? $('#um-status').value === '1' : true;
+    if (!nome || !/^[A-Z0-9]{3,12}$/.test(mat) || !/^\S+@\S+\.\S+$/.test(email)) return toast('Preencha os campos corretamente.', true);
+    if (!editingUser) return toast('Crie primeiro o usuário em Authentication > Users e vincule o auth_id no cadastro SQL. Não é seguro criar contas Auth pelo navegador.', true);
+    if (editingUser.id === state.user.id && !ativo) return toast('Não pode inativar a própria conta.', true);
+    await attempt(async () => {
+      await write('usuarios', 'PATCH', { nome, email, perfil: editingUser.id === state.user.id ? editingUser.perfil : perfil, situacao: ativo ? 'ATIVO' : 'INATIVO' }, `id=eq.${editingUser.id}`);
+      await recordHistory('Alteração de usuário', mat);
+      await refresh(); closeModal(userModal); toast('Usuário atualizado.');
+    });
   });
 
-  $('#users-body').addEventListener('click', async e => {
+    $('#users-body').addEventListener('click', async e => {
     const ed = e.target.closest('[data-edit]');
     const dl = e.target.closest('[data-del]');
     if (ed) return openUserModal(users[+ed.dataset.edit]);
@@ -860,10 +833,7 @@
     if (u === state.user) return toast('Você não pode excluir o próprio usuário.', true);
     const ok = await confirmDialog({ title: 'Excluir usuário', message: `Deseja excluir o usuário ${u.nome} (${u.mat})? Esta ação não pode ser desfeita.` });
     if (!ok) return;
-    users.splice(users.indexOf(u), 1);
-    history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Exclusão de usuário', veiculo: '-', documento: '-', arquivo: u.mat });
-    renderUsers();
-    toast('Usuário excluído.');
+    await attempt(async () => { await write('usuarios', 'PATCH', { situacao: 'INATIVO' }, `id=eq.${u.id}`); await recordHistory('Inativação de usuário', u.mat); await refresh(); toast('Usuário inativado. A conta Auth deve ser excluída separadamente pelo administrador.'); });
   });
 
   const typeModal = $('#type-modal');
@@ -899,53 +869,33 @@
 
   $('#add-tipo').addEventListener('click', () => openTypeModal());
 
-  $('#type-form').addEventListener('submit', e => {
+  $('#type-form').addEventListener('submit', async e => {
     e.preventDefault();
     const nome = $('#tp-nome').value.trim();
     const dup = tipos.some(t => t !== editingTipo && norm(t.nome) === norm(nome));
-    const err = nome.length < 3 ? 'Informe o nome do tipo (mínimo de 3 caracteres).' : dup ? 'Tipo já cadastrado.' : '';
-    setFieldError('tp-nome', err);
-    if (err) return;
-
-    if (editingTipo) {
-      vehicles.forEach(v => { if (v.tipo === editingTipo.nome) v.tipo = nome; });
-      editingTipo.nome = nome;
-      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Alteração de tipo de veículo', veiculo: '-', documento: '-', arquivo: nome });
-      toast('Tipo de veículo atualizado.');
-    } else {
-      tipos.push({ nome, ativo: true });
-      history.push({ data: fmtDate(new Date()), usuario: state.user.nome, acao: 'Cadastro de tipo de veículo', veiculo: '-', documento: '-', arquivo: nome });
-      toast(`Tipo ${nome} adicionado.`);
-    }
-    renderTipos();
-    fillTipoSelect();
-    closeModal(typeModal);
+    const err = nome.length < 3 ? 'Informe pelo menos 3 caracteres.' : dup ? 'Tipo já cadastrado.' : '';
+    setFieldError('tp-nome', err); if (err) return;
+    await attempt(async () => {
+      if (editingTipo) await write('tipos_veiculo', 'PATCH', { descricao: nome }, `id=eq.${editingTipo.id}`);
+      else await write('tipos_veiculo', 'POST', { descricao: nome, ativo: true });
+      await recordHistory(editingTipo ? 'Alteração de tipo' : 'Cadastro de tipo', nome);
+      await refresh(); closeModal(typeModal); toast('Tipo salvo.');
+    });
   });
 
-  $('#tipos-body').addEventListener('click', async e => {
-    const ed = e.target.closest('[data-tedit]');
-    const tg = e.target.closest('[data-ttoggle]');
-    const dl = e.target.closest('[data-tdel]');
+    $('#tipos-body').addEventListener('click', async e => {
+    const ed = e.target.closest('[data-tedit]'), tg = e.target.closest('[data-ttoggle]'), dl = e.target.closest('[data-tdel]');
     if (ed) return openTypeModal(tipos[+ed.dataset.tedit]);
-    if (tg) {
-      const t = tipos[+tg.dataset.ttoggle];
-      t.ativo = !t.ativo;
-      renderTipos(); fillTipoSelect();
-      return toast(`Tipo ${t.nome} ${t.ativo ? 'ativado' : 'inativado'}.`);
-    }
+    if (tg) { const t = tipos[+tg.dataset.ttoggle]; return attempt(async () => { await write('tipos_veiculo', 'PATCH', { ativo: !t.ativo }, `id=eq.${t.id}`); await refresh(); toast('Situação atualizada.'); }); }
     if (dl) {
-      const t = tipos[+dl.dataset.tdel];
-      const n = tipoEmUso(t);
-      if (n > 0) return toast(`Tipo em uso por ${n} veículo(s). Inative-o em vez de excluir.`, true);
-      const ok = await confirmDialog({ title: 'Excluir tipo de veículo', message: `Deseja excluir o tipo ${t.nome}?` });
-      if (!ok) return;
-      tipos.splice(tipos.indexOf(t), 1);
-      renderTipos(); fillTipoSelect();
-      toast('Tipo de veículo excluído.');
+      const t = tipos[+dl.dataset.tdel], n = tipoEmUso(t);
+      if (n) return toast(`Tipo utilizado por ${n} veículo(s).`, true);
+      if (!await confirmDialog({ title: 'Excluir tipo', message: `Excluir ${t.nome}?` })) return;
+      await attempt(async () => { await write('tipos_veiculo', 'DELETE', null, `id=eq.${t.id}`); await refresh(); toast('Tipo excluído.'); });
     }
   });
 
-  function renderAll() {
+    function renderAll() {
     renderVehicles();
     fillUploadVehicles();
     renderAlerts();
@@ -957,4 +907,5 @@
   }
 
   hydrateIcons();
+  restoreSession().catch(err => { console.warn(err); logoutSession(); });
 })();
