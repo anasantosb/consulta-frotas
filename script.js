@@ -82,7 +82,7 @@
     const headers = { apikey: KEY, Authorization: `Bearer ${accessToken || KEY}`, ...options.headers };
     if (options.body && !(options.body instanceof FormData) && !(options.body instanceof Blob)) headers['Content-Type'] = 'application/json';
     const response = await fetch(`${API}${path}`, { ...options, headers });
-    if (!response.ok) { const error = await response.json().catch(() => ({})); throw new Error(error.message || error.error_description || `Erro HTTP ${response.status}`); }
+    if (!response.ok) { const error = await response.json().catch(() => ({})); throw new Error(error.message || error.error_description || error.msg || `Erro HTTP ${response.status}`); }
     const data = await response.text();
     return data ? JSON.parse(data) : null;
   };
@@ -796,7 +796,7 @@
     $('#um-submit').textContent = u ? 'Salvar' : 'Adicionar';
     $('#um-status-field').hidden = !u;
     $('#um-mat').disabled = !!u;
-    $('#um-perfil').disabled = !!u && u === state.user;
+    $('#um-perfil').disabled = !!u && u.id === state.user?.id;
     if (u) {
       $('#um-nome').value = u.nome;
       $('#um-mat').value = u.mat;
@@ -810,30 +810,68 @@
 
   $('#add-user').addEventListener('click', () => openUserModal());
 
+  // Gerenciamento de contas executado no servidor, nunca com service_role no navegador.
+  async function gerenciarUsuario(acao, dados = {}) {
+    if (!accessToken) throw new Error('Sua sessão expirou. Entre novamente.');
+    const resposta = await api('/functions/v1/gerenciar-usuario', {
+      method: 'POST',
+      body: JSON.stringify({ acao, ...dados })
+    });
+    return resposta;
+  }
+
   $('#user-form').addEventListener('submit', async e => {
     e.preventDefault();
-    const nome = $('#um-nome').value.trim(), mat = (editingUser?.mat || $('#um-mat').value.trim().toUpperCase()), email = $('#um-email').value.trim();
-    const perfil = $('#um-perfil').value, ativo = editingUser ? $('#um-status').value === '1' : true;
-    if (!nome || !/^[A-Z0-9]{3,12}$/.test(mat) || !/^\S+@\S+\.\S+$/.test(email)) return toast('Preencha os campos corretamente.', true);
-    if (!editingUser) return toast('Crie primeiro o usuário em Authentication > Users e vincule o auth_id no cadastro SQL. Não é seguro criar contas Auth pelo navegador.', true);
-    if (editingUser.id === state.user.id && !ativo) return toast('Não pode inativar a própria conta.', true);
-    await attempt(async () => {
-      await write('usuarios', 'PATCH', { nome, email, perfil: editingUser.id === state.user.id ? editingUser.perfil : perfil, situacao: ativo ? 'ATIVO' : 'INATIVO' }, `id=eq.${editingUser.id}`);
-      await recordHistory('Alteração de usuário', mat);
-      await refresh(); closeModal(userModal); toast('Usuário atualizado.');
-    });
+    if (state.user?.perfil !== 'ADM') return toast('Sem permissão.', true);
+    const nome = $('#um-nome').value.trim();
+    const matricula = (editingUser?.mat || $('#um-mat').value.trim()).toUpperCase();
+    const email = $('#um-email').value.trim().toLowerCase();
+    const perfil = $('#um-perfil').value;
+    const situacao = editingUser ? ($('#um-status').value === '1' ? 'ATIVO' : 'INATIVO') : 'ATIVO';
+    if (!nome || !/^[A-Z0-9]{3,12}$/.test(matricula) || !/^\S+@\S+\.\S+$/.test(email) || !ROLES[perfil]) {
+      return toast('Preencha nome, matrícula, e-mail e perfil corretamente.', true);
+    }
+    const botao = $('#um-submit');
+    botao.disabled = true;
+    try {
+      const resultado = await gerenciarUsuario(editingUser ? 'editar' : 'criar', {
+        ...(editingUser ? { id: editingUser.id } : {}),
+        nome, matricula, email, perfil, situacao
+      });
+      await refresh();
+      closeModal(userModal);
+      toast(resultado.mensagem || 'Usuário salvo com sucesso.');
+      if (resultado.senha_temporaria) {
+        // A senha só é exibida uma vez e não é persistida no navegador.
+        window.prompt('Senha temporária (copie e entregue por canal seguro):', resultado.senha_temporaria);
+      }
+    } catch (erro) {
+      console.error(erro);
+      toast(erro.message, true);
+    } finally {
+      botao.disabled = false;
+    }
   });
 
-    $('#users-body').addEventListener('click', async e => {
+  $('#users-body').addEventListener('click', async e => {
+    if (state.user?.perfil !== 'ADM') return;
     const ed = e.target.closest('[data-edit]');
     const dl = e.target.closest('[data-del]');
-    if (ed) return openUserModal(users[+ed.dataset.edit]);
+    if (ed) return openUserModal(users[Number(ed.dataset.edit)]);
     if (!dl) return;
-    const u = users[+dl.dataset.del];
-    if (u === state.user) return toast('Você não pode excluir o próprio usuário.', true);
-    const ok = await confirmDialog({ title: 'Excluir usuário', message: `Deseja excluir o usuário ${u.nome} (${u.mat})? Esta ação não pode ser desfeita.` });
-    if (!ok) return;
-    await attempt(async () => { await write('usuarios', 'PATCH', { situacao: 'INATIVO' }, `id=eq.${u.id}`); await recordHistory('Inativação de usuário', u.mat); await refresh(); toast('Usuário inativado. A conta Auth deve ser excluída separadamente pelo administrador.'); });
+    const u = users[Number(dl.dataset.del)];
+    if (!u) return;
+    if (u.id === state.user.id) return toast('Não é possível inativar a própria conta.', true);
+    if (!await confirmDialog({
+      title: 'Inativar usuário',
+      message: `Inativar ${u.nome} (${u.mat})? O acesso será bloqueado, preservando o histórico.`,
+      okLabel: 'Inativar'
+    })) return;
+    await attempt(async () => {
+      await gerenciarUsuario('inativar', { id: u.id });
+      await refresh();
+      toast('Usuário inativado no Frotto e no Supabase Auth.');
+    });
   });
 
   const typeModal = $('#type-modal');
