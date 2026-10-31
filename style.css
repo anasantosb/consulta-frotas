@@ -855,20 +855,25 @@ button { cursor: pointer; }
   .user-modal__footer .btn { flex: 1; min-width: 0; }
 }
 
-.login__demo li {
+.login__demo ul {
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 6px;
 }
 
-.login__demo li b {
+.login__demo li {
+    display: block;
     font-size: 12px;
+    line-height: 1.6;
+}
+
+.login__demo li strong {
     color: #344054;
 }
 
-.login__demo li span {
-    font-size: 11px;
-    color: #667085;
+.login__demo p strong {
+    color: #4f39f6;
 }
 
 .modal__box--user {
