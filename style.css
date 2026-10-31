@@ -1148,3 +1148,34 @@ img, svg {
         padding: 0 8px;
     }
 }
+
+@supports (-webkit-touch-callout: none) {
+
+    /* Evita zoom automático ao focar nos campos */
+    .modal input,
+    .modal select,
+    .modal textarea {
+        font-size: 16px !important;
+    }
+
+    /* Mantém as popups dentro da largura da tela */
+    .modal {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    .modal__box {
+        width: 100%;
+        max-width: min(100%, 720px);
+        box-sizing: border-box;
+    }
+
+    /* Evita que elementos internos aumentem a popup */
+    .modal__box input,
+    .modal__box select,
+    .modal__box textarea {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+}
