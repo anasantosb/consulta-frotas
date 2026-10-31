@@ -21,10 +21,10 @@
     <form id="login-form" class="login__card" novalidate>
       <h2>Acesso ao Sistema</h2>
 
-      <label for="matricula">Matrícula</label>
+      <label for="matricula">E-mail</label>
       <div class="input-icon">
         <i data-icon="user"></i>
-        <input id="matricula" type="text" placeholder="Digite sua matrícula" autocomplete="username">
+        <input id="matricula" type="email" inputmode="email" placeholder="seuemail@empresa.com" autocomplete="username" required>
       </div>
 
       <label for="senha">Senha</label>
@@ -38,16 +38,9 @@
       <button type="submit" class="btn btn--primary btn--block">Entrar</button>
     </form>
 
-    <div class="login__demo">
-      <strong>Usuários para teste</strong>
-      <p>Informe a matrícula e qualquer senha com 8 ou mais caracteres.</p>
-      <ul>
-        <li><b>ADM001</b> – Administrador (acesso completo)</li>
-        <li><b>GES001</b> – Gestor de Frota</li>
-        <li><b>COL001</b> – Colaborador</li>
-        <li><b>COL002</b> – Colaborador</li>
-        <li><b>GES002</b> – Gestor de Frota (inativo, acesso bloqueado)</li>
-      </ul>
+    <div class="login__help">
+      <span class="login__help-icon"><i data-icon="shield"></i></span>
+      <p>Utilize o <strong>e-mail cadastrado</strong> e a senha definida para sua conta pelo administrador.</p>
     </div>
 
     <p class="login__footer">© 2025 Frotto - Todos os direitos reservados</p>
@@ -425,9 +418,9 @@
             <h4><i data-icon="info"></i>Gerenciamento de Usuários</h4>
             <ul>
               <li>Somente administradores podem gerenciar usuários</li>
-              <li>Todas as ações são registradas em logs do sistema</li>
+              <li>Contas são vinculadas ao Supabase Authentication</li>
               <li>Perfis diferentes possuem permissões específicas</li>
-              <li>Senhas devem ter no mínimo 8 caracteres</li>
+              <li>A senha inicial é definida no cadastro e não pode ser consultada depois</li>
             </ul>
           </div>
         </section>
@@ -463,48 +456,103 @@
   </div>
 
   <div id="user-modal" class="modal" hidden>
-    <div class="modal__box" role="dialog" aria-modal="true" aria-labelledby="um-title">
-      <h3 id="um-title">Adicionar Novo Usuário</h3>
+    <div class="modal__box modal__box--user" role="dialog" aria-modal="true" aria-labelledby="um-title" aria-describedby="um-subtitle">
+      <div class="user-modal__header">
+        <span class="user-modal__avatar" aria-hidden="true"><i data-icon="user-plus"></i></span>
+        <div class="user-modal__intro">
+          <h3 id="um-title">Adicionar novo usuário</h3>
+          <p id="um-subtitle">Preencha os dados e configure o acesso ao Frotto.</p>
+        </div>
+        <button type="button" class="user-modal__close" data-close-modal aria-label="Fechar janela"><i data-icon="x"></i></button>
+      </div>
+
       <form id="user-form" novalidate>
-        <div class="field">
-          <label for="um-nome">Nome Completo</label>
-          <input id="um-nome" class="input input--lg" type="text" placeholder="Digite o nome" autocomplete="off">
-          <p class="field__error" data-error-for="um-nome"></p>
-        </div>
-        <div class="field">
-          <label for="um-mat">Matrícula</label>
-          <input id="um-mat" class="input input--lg" type="text" placeholder="Digite a matrícula" autocomplete="off">
-          <p class="field__error" data-error-for="um-mat"></p>
-        </div>
-        <div class="field">
-          <label for="um-email">E-mail</label>
-          <input id="um-email" class="input input--lg" type="email" placeholder="Digite o e-mail" autocomplete="off">
-          <p class="field__error" data-error-for="um-email"></p>
-        </div>
-        <div class="field">
-          <label for="um-perfil">Perfil</label>
-          <div class="select select--full select--lg">
-            <select id="um-perfil">
-              <option value="COL">Colaborador</option>
-              <option value="GES">Gestor de Frota</option>
-              <option value="ADM">Administrador</option>
-            </select>
-            <i data-icon="chevron-down"></i>
+        <div class="user-modal__body">
+          <div class="user-modal__section-title">Informações do usuário</div>
+          <div class="user-modal__grid">
+            <div class="field user-modal__full">
+              <label for="um-nome">Nome completo <span class="user-modal__required">*</span></label>
+              <input id="um-nome" class="input input--lg" type="text" placeholder="Ex.: Maria da Silva" maxlength="120" autocomplete="off" required>
+              <p class="field__error" data-error-for="um-nome"></p>
+            </div>
+            <div class="field">
+              <label for="um-mat">Matrícula <span class="user-modal__required">*</span></label>
+              <input id="um-mat" class="input input--lg" type="text" placeholder="Ex.: COL001" maxlength="12" autocomplete="off" autocapitalize="characters" required>
+              <p class="field__error" data-error-for="um-mat"></p>
+            </div>
+            <div class="field">
+              <label for="um-perfil">Perfil de acesso <span class="user-modal__required">*</span></label>
+              <div class="select select--full select--lg">
+                <select id="um-perfil">
+                  <option value="COL">Colaborador</option>
+                  <option value="GES">Gestor de Frota</option>
+                  <option value="ADM">Administrador</option>
+                </select>
+                <i data-icon="chevron-down"></i>
+              </div>
+            </div>
+            <div class="field user-modal__full">
+              <label for="um-email">E-mail de acesso <span class="user-modal__required">*</span></label>
+              <input id="um-email" class="input input--lg" type="email" placeholder="nome@empresa.com" maxlength="255" autocomplete="off" required>
+              <p class="field__error" data-error-for="um-email"></p>
+            </div>
+            <div id="um-status-field" class="field user-modal__full" hidden>
+              <label for="um-status">Situação da conta</label>
+              <div class="select select--full select--lg">
+                <select id="um-status">
+                  <option value="1">Ativo</option>
+                  <option value="0">Inativo</option>
+                </select>
+                <i data-icon="chevron-down"></i>
+              </div>
+            </div>
+          </div>
+
+          <section id="um-password-section" class="user-modal__security" aria-labelledby="um-password-title">
+            <div class="user-modal__security-heading">
+              <span class="user-modal__security-icon" aria-hidden="true"><i data-icon="lock"></i></span>
+              <div>
+                <h4 id="um-password-title">Senha inicial</h4>
+                <p>Defina a senha que será usada no primeiro acesso.</p>
+              </div>
+            </div>
+            <div class="user-modal__grid user-modal__password-grid">
+              <div class="field">
+                <label for="um-senha">Senha <span class="user-modal__required">*</span></label>
+                <div class="user-modal__password-control">
+                  <input id="um-senha" class="input input--lg" type="password" placeholder="Mínimo de 8 caracteres" minlength="8" maxlength="128" autocomplete="new-password" aria-describedby="um-password-guidance" required>
+                  <button type="button" class="user-modal__toggle" data-password-toggle="um-senha" aria-label="Mostrar senha" aria-pressed="false">Mostrar</button>
+                </div>
+                <p class="field__error" data-error-for="um-senha"></p>
+              </div>
+              <div class="field">
+                <label for="um-confirma">Confirmar senha <span class="user-modal__required">*</span></label>
+                <div class="user-modal__password-control">
+                  <input id="um-confirma" class="input input--lg" type="password" placeholder="Repita a senha" minlength="8" maxlength="128" autocomplete="new-password" required>
+                  <button type="button" class="user-modal__toggle" data-password-toggle="um-confirma" aria-label="Mostrar confirmação" aria-pressed="false">Mostrar</button>
+                </div>
+                <p class="field__error" data-error-for="um-confirma"></p>
+              </div>
+            </div>
+            <div class="user-modal__strength" id="um-strength" data-strength="0" aria-live="polite">
+              <div class="user-modal__strength-track" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+              <span id="um-strength-label">Informe uma senha para continuar.</span>
+            </div>
+            <p class="user-modal__security-note" id="um-password-guidance">
+              <i data-icon="info" aria-hidden="true"></i>
+              Mínimo de 8 caracteres. Recomendamos misturar letras, números e símbolos. A senha não ficará visível após o cadastro.
+            </p>
+          </section>
+
+          <div id="um-edit-password-note" class="user-modal__edit-note" hidden>
+            <i data-icon="shield" aria-hidden="true"></i>
+            <p>A senha não pode ser consultada. Para redefinir o acesso deste usuário, utilize o Supabase Authentication.</p>
           </div>
         </div>
-        <div id="um-status-field" class="field" hidden>
-          <label for="um-status">Status</label>
-          <div class="select select--full select--lg">
-            <select id="um-status">
-              <option value="1">Ativo</option>
-              <option value="0">Inativo</option>
-            </select>
-            <i data-icon="chevron-down"></i>
-          </div>
-        </div>
-        <div class="modal__actions">
+
+        <div class="user-modal__footer">
           <button type="button" class="btn btn--outline" data-close-modal>Cancelar</button>
-          <button type="submit" id="um-submit" class="btn btn--primary">Adicionar</button>
+          <button type="submit" id="um-submit" class="btn btn--primary"><i data-icon="user-plus"></i><span id="um-submit-label">Criar usuário</span></button>
         </div>
       </form>
     </div>
