@@ -785,18 +785,70 @@
   }
 
   const userModal = $('#user-modal');
-  const UM_FIELDS = ['um-nome', 'um-mat', 'um-email'];
+  const UM_FIELDS = ['um-nome', 'um-mat', 'um-email', 'um-senha', 'um-confirma'];
   let editingUser = null;
+
+  // Indicador visual de força (orientativo; regra obrigatória: mínimo de 8 caracteres).
+  function updatePasswordStrength() {
+    const senha = $('#um-senha').value;
+    const meter = $('#um-strength');
+    const label = $('#um-strength-label');
+    if (!senha) {
+      meter.dataset.strength = '0';
+      label.textContent = 'Informe uma senha para continuar.';
+      return;
+    }
+    let score = 1;
+    if (senha.length >= 8) score++;
+    if (senha.length >= 12) score++;
+    if (/[a-zA-Z]/.test(senha) && /\d/.test(senha) && /[^a-zA-Z0-9]/.test(senha)) score++;
+    meter.dataset.strength = String(score);
+    label.textContent = ['','Muito fraca','Básica · prefira letras e números','Boa','Forte'][score];
+  }
+
+  // Mostrar/ocultar sem mover o foco nem salvar a senha em variáveis globais.
+  userModal.querySelectorAll('[data-password-toggle]').forEach(botao => {
+    botao.addEventListener('click', () => {
+      const input = document.getElementById(botao.dataset.passwordToggle);
+      const mostrar = input.type === 'password';
+      input.type = mostrar ? 'text' : 'password';
+      botao.textContent = mostrar ? 'Ocultar' : 'Mostrar';
+      botao.setAttribute('aria-pressed', String(mostrar));
+      botao.setAttribute('aria-label', `${mostrar ? 'Ocultar' : 'Mostrar'} ${input.id === 'um-senha' ? 'senha' : 'confirmação'}`);
+    });
+  });
+
+  $('#um-senha').addEventListener('input', () => {
+    setFieldError('um-senha', '');
+    setFieldError('um-confirma', '');
+    updatePasswordStrength();
+  });
+  $('#um-confirma').addEventListener('input', () => setFieldError('um-confirma', ''));
 
   function openUserModal(u = null) {
     editingUser = u;
     $('#user-form').reset();
     UM_FIELDS.forEach(id => setFieldError(id, ''));
-    $('#um-title').textContent = u ? 'Editar Usuário' : 'Adicionar Novo Usuário';
-    $('#um-submit').textContent = u ? 'Salvar' : 'Adicionar';
+    $('#um-title').textContent = u ? 'Editar usuário' : 'Adicionar novo usuário';
+    $('#um-subtitle').textContent = u
+      ? 'Atualize as informações e as permissões de acesso.'
+      : 'Preencha os dados e configure o acesso ao Frotto.';
+    $('#um-submit-label').textContent = u ? 'Salvar alterações' : 'Criar usuário';
+    $('#um-password-section').hidden = !!u;
+    $('#um-edit-password-note').hidden = !u;
     $('#um-status-field').hidden = !u;
+    $('#um-senha').required = !u;
+    $('#um-confirma').required = !u;
     $('#um-mat').disabled = !!u;
     $('#um-perfil').disabled = !!u && u.id === state.user?.id;
+    userModal.querySelectorAll('[data-password-toggle]').forEach(botao => {
+      const input = document.getElementById(botao.dataset.passwordToggle);
+      input.type = 'password';
+      botao.textContent = 'Mostrar';
+      botao.setAttribute('aria-pressed', 'false');
+      botao.setAttribute('aria-label', `Mostrar ${input.id === 'um-senha' ? 'senha' : 'confirmação'}`);
+    });
+    updatePasswordStrength();
     if (u) {
       $('#um-nome').value = u.nome;
       $('#um-mat').value = u.mat;
@@ -828,28 +880,48 @@
     const email = $('#um-email').value.trim().toLowerCase();
     const perfil = $('#um-perfil').value;
     const situacao = editingUser ? ($('#um-status').value === '1' ? 'ATIVO' : 'INATIVO') : 'ATIVO';
-    if (!nome || !/^[A-Z0-9]{3,12}$/.test(matricula) || !/^\S+@\S+\.\S+$/.test(email) || !ROLES[perfil]) {
+    if (nome.length < 2 || !/^[A-Z0-9]{3,12}$/.test(matricula) || !/^\S+@\S+\.\S+$/.test(email) || !ROLES[perfil]) {
       return toast('Preencha nome, matrícula, e-mail e perfil corretamente.', true);
     }
+
+    // Somente a criação exige senha inicial; edições não alteram a senha.
+    const senha = $('#um-senha').value;
+    if (!editingUser) {
+      if (senha.length < 8 || senha.length > 128 || !senha.trim()) {
+        setFieldError('um-senha', 'Informe uma senha entre 8 e 128 caracteres.');
+        $('#um-senha').focus();
+        return;
+      }
+      if ($('#um-confirma').value !== senha) {
+        setFieldError('um-confirma', 'As senhas não coincidem.');
+        $('#um-confirma').focus();
+        return;
+      }
+    }
+
     const botao = $('#um-submit');
+    const label = $('#um-submit-label');
+    const textoAnterior = label.textContent;
     botao.disabled = true;
+    label.textContent = 'Salvando...';
     try {
       const resultado = await gerenciarUsuario(editingUser ? 'editar' : 'criar', {
         ...(editingUser ? { id: editingUser.id } : {}),
-        nome, matricula, email, perfil, situacao
+        nome, matricula, email, perfil, situacao,
+        ...(!editingUser ? { senha } : {})
       });
       await refresh();
       closeModal(userModal);
+      // Não exibir nem persistir a senha após o cadastro.
+      $('#um-senha').value = '';
+      $('#um-confirma').value = '';
       toast(resultado.mensagem || 'Usuário salvo com sucesso.');
-      if (resultado.senha_temporaria) {
-        // A senha só é exibida uma vez e não é persistida no navegador.
-        window.prompt('Senha temporária (copie e entregue por canal seguro):', resultado.senha_temporaria);
-      }
     } catch (erro) {
       console.error(erro);
       toast(erro.message, true);
     } finally {
       botao.disabled = false;
+      label.textContent = textoAnterior;
     }
   });
 
