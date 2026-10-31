@@ -813,7 +813,7 @@
   // Gerenciamento de contas executado no servidor, nunca com service_role no navegador.
   async function gerenciarUsuario(acao, dados = {}) {
     if (!accessToken) throw new Error('Sua sessão expirou. Entre novamente.');
-    const resposta = await api('/functions/v1/gerenciar-usuario', {
+    const resposta = await api('/functions/v1/quick-task', {
       method: 'POST',
       body: JSON.stringify({ acao, ...dados })
     });
