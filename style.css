@@ -1338,3 +1338,29 @@ img, svg {
         text-align: left;
     }
 }
+
+/* Corrigir ícone de exclusão duplicado no mobile */
+@media (max-width: 600px) {
+
+    #dd-delete::before,
+    #dd-delete::after {
+        content: none !important;
+        display: none !important;
+    }
+
+    #dd-delete {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+    }
+
+    #dd-delete .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    #dd-delete span {
+        display: none;
+    }
+}
