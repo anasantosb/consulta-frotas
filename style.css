@@ -1190,8 +1190,8 @@ img, svg {
     /* Campos de data dentro da largura do formulário */
     #upload-form .form-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 0;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
         width: 100%;
     }
 
@@ -1210,6 +1210,9 @@ img, svg {
         height: 44px;
         box-sizing: border-box;
         font-size: 16px;
+        padding: 0 6px;
+        -webkit-appearance: auto;
+        appearance: auto;
     }
 
     /* Área de seleção de arquivos */
@@ -1240,3 +1243,98 @@ img, svg {
     }
 }
 
+
+
+/* ==========================================
+   FROTTO - DETALHES DO VEÍCULO
+   Botões juntos no desktop e ícones no mobile
+========================================== */
+
+.docs-head__top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.docs-head__top .link-back {
+    margin: 0 auto 0 0;
+}
+
+.docs-head__top #dd-edit,
+.docs-head__top #dd-edit + button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+/* O botão de excluir é criado dinamicamente após #dd-edit. */
+@media (max-width: 600px) {
+    .docs-head__top {
+        gap: 8px;
+    }
+
+    .docs-head__top .link-back {
+        min-width: 0;
+        font-size: 12px;
+    }
+
+    .docs-head__top #dd-edit,
+    .docs-head__top #dd-edit + button {
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        padding: 0;
+        font-size: 0; /* Oculta apenas o texto, sem perder o botão */
+        line-height: 0;
+    }
+
+    .docs-head__top #dd-edit .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .docs-head__top #dd-edit {
+        color: var(--indigo);
+    }
+
+    .docs-head__top #dd-edit + button {
+        color: var(--red-600);
+    }
+
+    /* Ícone de lixeira sem precisar alterar o JavaScript atual. */
+    .docs-head__top #dd-edit + button::before {
+        content: "";
+        display: block;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+        background: center / contain no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23e7000b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6'/%3E%3Cpath d='M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2'/%3E%3Cpath d='M10 11v6'/%3E%3Cpath d='M14 11v6'/%3E%3C/svg%3E");
+    }
+
+    /* Campos de data lado a lado, sem exceder a largura no Safari iOS. */
+    #upload-form .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    #upload-form .form-grid .field {
+        min-width: 0;
+    }
+
+    #up-emissao,
+    #up-validade {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    #up-emissao::-webkit-date-and-time-value,
+    #up-validade::-webkit-date-and-time-value {
+        min-width: 0;
+        text-align: left;
+    }
+}
