@@ -1364,3 +1364,80 @@ img, svg {
         display: none;
     }
 }
+
+/* Centralização dos botões no mobile */
+
+@media (max-width: 600px) {
+
+    #dd-edit,
+    #dd-delete {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 40px;
+        height: 40px;
+        padding: 0 !important;
+        gap: 0 !important;
+        line-height: 1;
+    }
+
+    #dd-edit .icon,
+    #dd-delete .icon {
+        display: block;
+        width: 18px;
+        height: 18px;
+        margin: 0 !important;
+        flex-shrink: 0;
+    }
+
+    #dd-edit span,
+    #dd-delete span {
+        display: none;
+    }
+}
+
+
+/* Datas do formulário Enviar Documentos */
+
+@media (max-width: 600px) {
+
+    #upload-form .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    #upload-form .form-grid .field {
+        min-width: 0;
+        width: 100%;
+    }
+
+    #up-emissao,
+    #up-validade {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        height: 44px;
+        padding: 0 8px;
+        font-size: 16px;
+        color: #101828;
+        border: 1px solid #d1d5dc;
+        border-radius: 8px;
+        background: #fff;
+        box-sizing: border-box;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    #up-emissao::-webkit-date-and-time-value,
+    #up-validade::-webkit-date-and-time-value {
+        min-width: 0;
+        text-align: left;
+    }
+
+    #up-emissao::-webkit-datetime-edit,
+    #up-validade::-webkit-datetime-edit {
+        padding: 0;
+        font-size: 16px;
+    }
+}
