@@ -855,25 +855,47 @@ button { cursor: pointer; }
   .user-modal__footer .btn { flex: 1; min-width: 0; }
 }
 
+.login__demo {
+    max-width: 450px;
+    padding: 12px 16px;
+}
+
+.login__demo p,
+.login__demo p strong,
+.login__demo li,
+.login__demo li strong {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.login__demo p {
+    margin: 0 0 10px;
+    white-space: normal;
+}
+
+.login__demo p strong {
+    display: inline;
+    font-weight: 600;
+}
+
 .login__demo ul {
-    margin-top: 12px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 .login__demo li {
     display: block;
-    font-size: 12px;
-    line-height: 1.6;
+    margin: 0;
+    white-space: nowrap;
 }
 
 .login__demo li strong {
-    color: #344054;
-}
-
-.login__demo p strong {
-    color: #4f39f6;
+    display: inline;
+    font-weight: 600;
 }
 
 .modal__box--user {
