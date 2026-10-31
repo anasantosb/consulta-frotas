@@ -854,3 +854,20 @@ button { cursor: pointer; }
   .user-modal__footer { padding: 15px 18px 18px; }
   .user-modal__footer .btn { flex: 1; min-width: 0; }
 }
+
+.login__demo li {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.login__demo li b {
+    font-size: 12px;
+    color: #344054;
+}
+
+.login__demo li span {
+    font-size: 11px;
+    color: #667085;
+}
+
