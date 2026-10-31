@@ -935,8 +935,216 @@ button { cursor: pointer; }
     border-top: 1px solid #edf0f6;
 }
 
+/* ==========================================
+   FROTTO - RESPONSIVIDADE MOBILE
+   Android, iPhone e tablets
+========================================== */
+
+html, body {
+    width: 100%;
+    min-height: 100%;
+    overflow-x: clip;
+}
+
+img, svg {
+    max-width: 100%;
+}
+
+/* TABLETS */
+@media (max-width: 860px) {
+
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .content {
+        padding: 16px;
+    }
+
+    .vgrid,
+    .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .sidebar {
+        width: min(280px, 85vw);
+    }
+
+    .topbar {
+        padding: 0 16px;
+    }
+}
+
+/* CELULARES */
 @media (max-width: 600px) {
+
+    /* Login */
+
+    .login {
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 24px 16px;
+        justify-content: flex-start;
+    }
+
+    .login__brand {
+        margin-bottom: 20px;
+    }
+
+    .login__brand h1 {
+        font-size: 26px;
+    }
+
+    .login__card,
+    .login__demo {
+        width: 100%;
+        max-width: 450px;
+    }
+
+    .login__card {
+        padding: 22px 20px;
+    }
+
+    .login__demo {
+        padding: 12px 14px;
+    }
+
+    .login__demo p,
+    .login__demo li,
+    .login__demo strong,
+    .login__demo b {
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .login__demo strong {
+        display: inline;
+        margin: 0;
+    }
+
+    .login__demo li {
+        display: block;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        margin: 0;
+    }
+
+    /* Evita zoom automático no iOS */
+
+    input,
+    select,
+    textarea,
+    .input-icon input,
+    .modal__box--user .input--lg,
+    .modal__box--user .select--lg select {
+        font-size: 16px;
+    }
+
+    /* Conteúdo */
+
+    .content {
+        padding: 12px;
+    }
+
+    .vgrid,
+    .stats,
+    .stats--3,
+    .form-grid,
+    .report-types,
+    .export-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .filters {
+        flex-direction: column;
+    }
+
+    .select,
+    .narrow {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    /* Tabelas */
+
+    .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Modal */
+
+    .modal {
+        padding: 10px;
+        align-items: center;
+    }
+
     .modal__box--user {
-        max-height: 95dvh;
+        width: 100%;
+        max-width: 100%;
+        max-height: 94vh;
+        max-height: 94dvh;
+        overflow: hidden;
+    }
+
+    .modal__box--user .user-modal__header {
+        padding: 16px;
+    }
+
+    .modal__box--user .user-modal__body {
+        padding: 16px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+
+    .user-modal__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .user-modal__full {
+        grid-column: auto;
+    }
+
+    .user-modal__security {
+        margin-top: 16px;
+        padding: 14px;
+    }
+
+    .user-modal__footer {
+        padding: 12px 16px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
+    }
+
+    .user-modal__footer .btn {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Botões com tamanho adequado ao toque */
+
+    .icon-btn {
+        min-width: 40px;
+        min-height: 40px;
+    }
+}
+
+/* CELULARES PEQUENOS */
+@media (max-width: 380px) {
+
+    .login__card {
+        padding: 18px 16px;
+    }
+
+    .user-modal__header h3 {
+        font-size: 16px;
+    }
+
+    .user-modal__footer .btn {
+        font-size: 12px;
+        padding: 0 8px;
     }
 }
