@@ -871,3 +871,45 @@ button { cursor: pointer; }
     color: #667085;
 }
 
+.modal__box--user {
+    display: flex;
+    flex-direction: column;
+    max-height: 92dvh;
+    overflow: hidden;
+}
+
+.modal__box--user #user-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.modal__box--user .user-modal__header {
+    flex-shrink: 0;
+}
+
+.modal__box--user .user-modal__body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.modal__box--user .user-modal__body::-webkit-scrollbar {
+    display: none;
+}
+
+.modal__box--user .user-modal__footer {
+    flex-shrink: 0;
+    margin-top: 0;
+    background: #fff;
+    border-top: 1px solid #edf0f6;
+}
+
+@media (max-width: 600px) {
+    .modal__box--user {
+        max-height: 95dvh;
+    }
+}
