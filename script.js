@@ -703,11 +703,33 @@
     evf.placa.focus();
   }
 
-  const deleteVehicleButton = document.createElement('button');
+  /*const deleteVehicleButton = document.createElement('button');
   deleteVehicleButton.type = 'button';
   deleteVehicleButton.className = 'btn btn--outline btn--sm';
   deleteVehicleButton.textContent = 'Excluir veículo';
-  $('#dd-edit').insertAdjacentElement('afterend', deleteVehicleButton);
+  $('#dd-edit').insertAdjacentElement('afterend', deleteVehicleButton);*/
+
+  
+  const deleteVehicleButton = document.createElement('button');
+  
+  deleteVehicleButton.type = 'button';
+  deleteVehicleButton.id = 'dd-delete';
+  deleteVehicleButton.className = 'btn btn--outline btn--sm';
+  
+  deleteVehicleButton.innerHTML =
+      `${icon('trash')}<span>Excluir veículo</span>`;
+  
+  deleteVehicleButton.setAttribute(
+      'aria-label',
+      'Excluir veículo'
+  );
+  
+  $('#dd-edit').insertAdjacentElement(
+      'afterend',
+      deleteVehicleButton
+  );
+
+  
   deleteVehicleButton.addEventListener('click', async () => {
     const v = vehicles.find(x => x.placa === state.currentPlaca);
     if (!v || state.user.perfil !== 'ADM') return;
